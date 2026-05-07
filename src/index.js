@@ -9,7 +9,7 @@ const { connectDB } = require('./config/db');
 const { fetchAllMedia } = require('./services/pixabayService');
 const { downloadBatch } = require('./services/downloadService');
 const { uploadBatch, createStats } = require('./services/uploadService');
-const { loadUploadedIds, getMetadataSummary } = require('./services/metadataService');
+const { loadUploadedIds, getMetadataSummary, recordSuccessfulUpload } = require('./services/metadataService');
 const { ensureDirectories } = require('./utils/fileUtils');
 const { sendMediaToTelegram } = require('./services/telegramService');
 const logger = require('./utils/logger');
@@ -61,6 +61,10 @@ const originalWarn = logger.warn;
 logger.warn = (msg, ...args) => { addActivityLog(msg, 'warn'); originalWarn(msg, ...args); };
 const originalError = logger.error;
 logger.error = (msg, ...args) => { addActivityLog(msg, 'error'); originalError(msg, ...args); };
+/**
+ * Main application entry point
+ */
+async function main() {
     logger.section('🌿 NATURE MEDIA UPLOADER — STARTING');
     
     // 1. Setup
