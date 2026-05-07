@@ -50,6 +50,7 @@ app.get('/api/media', async (req, res) => {
             fetchAllResources('image'),
             fetchAllResources('video')
         ]);
+        console.log(`[API] Cloudinary found: ${cloudImages.length} images, ${cloudVideos.length} videos`);
 
         // Still fetch skipped videos from DB (Telegram only files)
         const { Media } = require('./config/db');
