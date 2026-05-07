@@ -45,7 +45,7 @@
             background: rgba(5, 8, 15, 0.7);
             backdrop-filter: blur(24px);
             border-bottom: 1px solid var(--glass-border);
-            padding: 1.2rem 5%;
+            padding: 1rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -59,7 +59,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 900;
-            letter-spacing: -0.5px;
         }
 
         .stats-badge {
@@ -175,7 +174,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s ease;
         }
 
         .card-content {
@@ -211,14 +209,39 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 0;
+        }
+
+        #viewer-media-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
         #viewer-content {
             max-width: 100%;
-            max-height: 80vh;
-            border-radius: 20px;
-            box-shadow: 0 0 60px rgba(16, 185, 129, 0.15);
+            max-height: 100%;
+            box-shadow: 0 0 100px rgba(0,0,0,0.5);
+        }
+
+        /* Custom Timeline */
+        .video-timeline {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .video-progress {
+            height: 100%;
+            width: 0;
+            background: var(--primary);
+            transition: width 0.1s linear;
         }
 
         .close-viewer {
@@ -231,6 +254,10 @@
             color: white;
             font-size: 24px;
             cursor: pointer;
+            z-index: 2100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #load-more-trigger {
@@ -242,18 +269,6 @@
             font-weight: 600;
             grid-column: 1/-1;
         }
-
-        /* Loading Skeleton */
-        .skeleton {
-            background: linear-gradient(90deg, var(--card-bg) 25%, #1e293b 50%, var(--card-bg) 75%);
-            background-size: 200% 100%;
-            animation: skeleton-loading 1.5s infinite;
-        }
-
-        @keyframes skeleton-loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
     </style>
 </head>
 <body>
@@ -263,14 +278,17 @@
         <div id="total-count" class="stats-badge">Loading...</div>
     </header>
 
-    <div id="viewer" onclick="closeViewer()">
-        <button class="close-viewer">&times;</button>
-        <div id="viewer-media-container" style="display:contents"></div>
+    <div id="viewer">
+        <button class="close-viewer" onclick="closeViewer()">&times;</button>
+        <div id="viewer-media-container" onclick="closeViewer()">
+            <!-- Media Injected Here -->
+        </div>
+        <div class="video-timeline" id="timeline"><div class="video-progress" id="progress"></div></div>
     </div>
 
     <section class="hero">
         <h1>Visions of Nature</h1>
-        <p>Ultra-premium nature gallery optimized for instant discovery.</p>
+        <p>Ultra-premium nature gallery. Click to play, click again to go back.</p>
         
         <div class="tabs">
             <button class="tab-btn active" data-tab="images" onclick="switchTab('images')">Images</button>
@@ -296,11 +314,10 @@
         let authenticated = false;
         const LIMIT = 40;
 
-        // Cloudinary Optimization Helper
         function getOptimizedUrl(url, type) {
             if (!url || url === 'skipped_due_to_size') return url;
-            if (type === 'video') return url.replace('/upload/', '/upload/f_auto,q_auto,w_800,c_limit/');
-            return url.replace('/upload/', '/upload/f_auto,q_auto,w_600,c_limit/');
+            if (type === 'video') return url.replace('/upload/', '/upload/f_auto,q_auto,w_1000,c_limit/');
+            return url.replace('/upload/', '/upload/f_auto,q_auto,w_800,c_limit/');
         }
 
         async function fetchMore() {
@@ -340,7 +357,7 @@
             }
         }
 
-        function renderNewItems(items, type) {
+        function renderNewItems(items) {
             const grid = document.getElementById('gallery-grid');
             items.forEach((item) => {
                 const card = document.createElement('div');
@@ -357,7 +374,7 @@
                     if (item.cloudinaryUrl === 'skipped_due_to_size') {
                         mediaHtml = `<div style="height:100%; display:flex; align-items:center; justify-content:center; background:#161d2f; color:var(--primary); font-weight:800;">📽️ TELEGRAM</div>`;
                     } else {
-                        mediaHtml = `<video muted onmouseover="this.play()" onmouseout="this.pause()"><source src="${optimizedUrl}#t=0.5" type="video/mp4"></video>`;
+                        mediaHtml = `<video muted loop playsinline preload="auto"><source src="${optimizedUrl}#t=0.5" type="video/mp4"></video>`;
                     }
                 }
 
@@ -367,7 +384,7 @@
                         <div class="card-title">${item.title || 'Nature Clip'}</div>
                         <div class="card-meta">
                             <span>${new Date(item.uploadedAt).toLocaleDateString()}</span>
-                            <span style="color:var(--primary)">EXPLORE</span>
+                            <span style="color:var(--primary)">PLAY</span>
                         </div>
                     </div>
                 `;
@@ -386,7 +403,7 @@
                 hasMore[tab] = true;
                 fetchMore();
             } else {
-                renderNewItems(mediaData[tab], tab);
+                renderNewItems(mediaData[tab]);
             }
         }
 
@@ -405,36 +422,61 @@
             const viewer = document.getElementById('viewer');
             const container = document.getElementById('viewer-media-container');
             const isVideo = item.cloudinaryUrl.includes('.mp4') || item.type === 'videos';
+            const timeline = document.getElementById('timeline');
             
+            container.innerHTML = '';
+            timeline.style.display = isVideo ? 'block' : 'none';
+
             if (item.cloudinaryUrl === 'skipped_due_to_size') {
                 container.innerHTML = `<div style="color:white; text-align:center;"><h2>Telegram Large File</h2></div>`;
             } else if (isVideo) {
-                container.innerHTML = `<video id="viewer-content" controls autoplay src="${item.cloudinaryUrl}"></video>`;
+                const video = document.createElement('video');
+                video.id = 'viewer-content';
+                video.src = item.cloudinaryUrl;
+                video.autoplay = true;
+                video.loop = true;
+                video.playsInline = true;
+                video.preload = 'auto';
+                
+                video.ontimeupdate = () => {
+                    const progress = (video.currentTime / video.duration) * 100;
+                    document.getElementById('progress').style.width = progress + '%';
+                };
+
+                container.appendChild(video);
             } else {
-                container.innerHTML = `<img id="viewer-content" src="${item.cloudinaryUrl}">`;
+                const img = document.createElement('img');
+                img.id = 'viewer-content';
+                img.src = item.cloudinaryUrl;
+                container.appendChild(img);
             }
+            
             viewer.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
 
         function closeViewer() {
-            document.getElementById('viewer').style.display = 'none';
-            document.getElementById('viewer-media-container').innerHTML = '';
+            const viewer = document.getElementById('viewer');
+            const container = document.getElementById('viewer-media-container');
+            const video = document.getElementById('viewer-content');
+            if (video && video.tagName === 'VIDEO') video.pause();
+            
+            viewer.style.display = 'none';
+            container.innerHTML = '';
             document.body.style.overflow = 'auto';
+            document.getElementById('progress').style.width = '0%';
         }
 
         function updateStats() {
             document.getElementById('total-count').innerText = `${mediaData.images.length + mediaData.videos.length} Discoveries`;
         }
 
-        // Infinite Scroll
         window.onscroll = () => {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
                 fetchMore();
             }
         };
 
-        // Initial Load
         fetchMore();
     </script>
 </body>
