@@ -51,24 +51,26 @@ async function sendMediaToTelegram(localPath, item, type) {
                         `🏷 **Tags:** ${tagsString}\n\n` +
                         `🔗 [View on Pixabay](${item.pageURL || item.pixabayUrl})`;
 
-        logger.step('Telegram', `Uploading ${type.slice(0, -1)} to chat ${chatId}...`);
+        logger.step('Telegram', `Initiating upload for ${item.id}...`);
 
-        // Use sendFile for everything - it's more reliable for both images and videos
+        // Use sendFile with optimizations for large files
         await client.sendFile(chatId, {
             file: localPath,
             caption: caption,
             parseMode: 'markdown',
             supportsStreaming: true,
-            forceDocument: false, // Upload as media, not file
+            forceDocument: false,
+            workers: 1, 
         });
 
-        logger.success(`Posted to Telegram: ${item.id}`);
+        logger.success(`Telegram: Upload completed for ${item.id}`);
     } catch (error) {
         logger.error(`Telegram upload failed for ${item.id}: ${error.message}`);
-        // If session expired or failed, clear client so it re-inits next time
-        if (error.message.includes('AUTH_KEY') || error.message.includes('SESSION')) {
-            client = null;
+        // Log more details if it's a FloodWait or Timeout
+        if (error.message.includes('FLOOD')) {
+            logger.warn(`Telegram FloodWait detected. Waiting...`);
         }
+        client = null; // Re-init on next call
     }
 }
 

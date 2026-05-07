@@ -338,29 +338,46 @@
                 const tags = item.tags ? item.tags.slice(0, 3) : [];
                 const tagHtml = tags.map(t => `<span class="tag">${t}</span>`).join('');
                 
-                const mediaHtml = currentTab === 'images' 
-                    ? `<img src="${item.cloudinaryUrl}" alt="${item.title}" loading="lazy">`
-                    : `
-                        <video muted onmouseover="this.play()" onmouseout="this.pause(); this.currentTime=0;">
-                            <source src="${item.cloudinaryUrl}" type="video/mp4">
-                        </video>
-                        <div class="video-overlay">▶</div>
-                      `;
+                const isSkipped = item.cloudinaryUrl === 'skipped_due_to_size';
+                
+                let mediaHtml;
+                if (currentTab === 'images') {
+                    mediaHtml = `<img src="${item.cloudinaryUrl}" alt="${item.title}" loading="lazy">`;
+                } else {
+                    if (isSkipped) {
+                        mediaHtml = `
+                            <div class="media-wrapper" style="display:flex; flex-direction:column; align-items:center; justify-content:center; background:#0f172a; text-align:center; padding:1rem;">
+                                <div style="font-size:3rem; margin-bottom:1rem;">📹</div>
+                                <div style="color:var(--primary); font-weight:bold;">Video on Telegram</div>
+                                <div style="font-size:0.7rem; color:var(--text-dim);">File size > 100MB (Cloudinary Limit)</div>
+                            </div>
+                        `;
+                    } else {
+                        mediaHtml = `
+                            <div class="media-wrapper">
+                                <video muted onmouseover="this.play()" onmouseout="this.pause(); this.currentTime=0;">
+                                    <source src="${item.cloudinaryUrl}" type="video/mp4">
+                                </video>
+                                <div class="video-overlay">▶</div>
+                            </div>
+                        `;
+                    }
+                }
 
                 card.innerHTML = `
-                    <div class="media-wrapper">
-                        ${mediaHtml}
-                    </div>
+                    ${!isSkipped ? '<div class="media-wrapper">' + mediaHtml + '</div>' : mediaHtml}
                     <div class="card-content">
-                        <div class="card-title">${item.title || 'Nature Media'}</div>
+                        <div class="card-title">${item.title || 'Nature Media'} ${isSkipped ? '☁️' : ''}</div>
                         <div class="card-meta">
-                            <span>${item.cloudinaryWidth}x${item.cloudinaryHeight}</span>
+                            <span>${item.cloudinaryWidth || 'HD'}x${item.cloudinaryHeight || ''}</span>
                             <span>${new Date(item.uploadedAt).toLocaleDateString()}</span>
                         </div>
                         <div class="tag-list">
                             ${tagHtml}
                         </div>
-                        <a href="${item.cloudinaryUrl}" target="_blank" class="action-btn">View Original</a>
+                        <a href="${isSkipped ? item.pixabayUrl : item.cloudinaryUrl}" target="_blank" class="action-btn">
+                            ${isSkipped ? 'View on Pixabay' : 'View Original'}
+                        </a>
                     </div>
                 `;
                 grid.appendChild(card);

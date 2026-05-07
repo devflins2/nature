@@ -116,13 +116,17 @@ async function runPipeline() {
             const fileSizeMB = stats_info.size / (1024 * 1024);
             
             // Cloudinary limit 100MB for free tier
+            let cloudinaryResult = null;
             if (fileSizeMB <= 100) {
-                await uploadBatch([{ item, localPath }], type, uploadedIds, stats);
+                const results = await uploadBatch([{ item, localPath }], type, uploadedIds, stats);
+                if (results && results.length > 0) cloudinaryResult = results[0];
             } else {
                 logger.warn(`Skipping Cloudinary for ${item.id}: File too large (${fileSizeMB.toFixed(1)}MB)`);
+                // Record in DB even if skipped Cloudinary (for tracking)
+                await recordSuccessfulUpload(item, { secure_url: 'skipped_due_to_size' }, type, uploadedIds);
             }
             
-            // Telegram Upload
+            // Telegram Upload (Always try Telegram)
             await sendMediaToTelegram(localPath, item, type);
 
             // Cleanup local file immediately
