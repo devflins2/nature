@@ -164,10 +164,13 @@ async function fetchVideos(keyword, perPage = 20, page = 1) {
 async function fetchAllMedia(perKeyword = APP_CONFIG.resultsPerKeyword) {
     const allImages = [];
     const allVideos = [];
-    const keywords = APP_CONFIG.searchKeywords;
+    
+    // SHUFFLE and pick a random subset of keywords for this cycle
+    const shuffledKeywords = [...APP_CONFIG.searchKeywords].sort(() => 0.5 - Math.random());
+    const keywords = shuffledKeywords.slice(0, 8); // Process 8 random keywords per cycle
 
-    logger.section('FETCHING MEDIA FROM PIXABAY');
-    logger.step('Keywords', keywords.join(', '));
+    logger.section('FETCHING MEDIA FROM PIXABAY (RANDOMIZED CYCLE)');
+    logger.step('Selected Keywords', keywords.join(', '));
     logger.step('Per keyword', String(perKeyword));
 
     for (let i = 0; i < keywords.length; i++) {
