@@ -26,11 +26,17 @@ app.get('/health', (req, res) => res.send('OK'));
 app.get('/api/media', async (req, res) => {
     try {
         const cloudinary = require('cloudinary').v2;
-        cloudinary.config({
-            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-            api_key: process.env.CLOUDINARY_API_KEY,
-            api_secret: process.env.CLOUDINARY_API_SECRET
-        });
+        
+        // Use CLOUDINARY_URL if available, otherwise use individual parts
+        if (process.env.CLOUDINARY_URL) {
+            cloudinary.config(true); // Automatically picks up CLOUDINARY_URL
+        } else {
+            cloudinary.config({
+                cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+                api_key: process.env.CLOUDINARY_API_KEY,
+                api_secret: process.env.CLOUDINARY_API_SECRET
+            });
+        }
 
         // 1. Fetch live from Cloudinary
         const [imgRes, vidRes] = await Promise.all([
