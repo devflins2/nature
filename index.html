@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NATURE.VISION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000;
+            --accent: #10b981;
+            --text: #fff;
+            --dim: rgba(255,255,255,0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-y: scroll;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 2rem;
+            z-index: 1000;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+        }
+
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        .nav-main {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--dim);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-link.active {
+            color: #fff;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scrollbar-width: none;
+        }
+        .filter-row::-webkit-scrollbar { display: none; }
+
+        .filter-btn {
+            white-space: nowrap;
+            font-size: 0.7rem;
+            color: var(--dim);
+            background: rgba(255,255,255,0.05);
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        /* Gallery Grid */
+        .gallery-wrap {
+            padding: 8rem 1rem 2rem;
+        }
+
+        .masonry {
+            column-count: 4;
+            column-gap: 1rem;
+        }
+
+        @media (max-width: 1200px) { .masonry { column-count: 3; } }
+        @media (max-width: 800px) { .masonry { column-count: 2; } }
+        @media (max-width: 500px) { .masonry { column-count: 1; } }
+
+        .item {
+            break-inside: avoid;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #0a0a0a;
+            cursor: zoom-in;
+            position: relative;
+        }
+
+        .item img, .item video {
+            width: 100%;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .item:hover img, .item:hover video {
+            transform: scale(1.05);
+        }
+
+        /* Label on Image */
+        .item-label {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Lightbox */
+        #lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.98);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            cursor: zoom-out;
+        }
+
+        #lightbox.active { display: flex; }
+
+        .lb-content {
+            max-width: 100%;
+            max-height: 100%;
+            text-align: center;
+        }
+
+        .lb-content img, .lb-content video {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: 4px;
+        }
+
+        .lb-info {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--dim);
+        }
+
+        /* Stats */
+        .stats {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 2rem;
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="top-row">
+            <div class="logo">NATURE.VISION</div>
+            <div class="nav-main">
+                <span class="nav-link active" onclick="switchTab('images')">Images</span>
+                <span class="nav-link" onclick="switchTab('videos')">Videos</span>
+                <span class="nav-link" onclick="switchTab('errors')">Logs</span>
+            </div>
+        </div>
+        <div class="filter-row" id="filters">
+            <span class="filter-btn active" onclick="setFilter('all')">All</span>
+            <span class="filter-btn" onclick="setFilter('nature')">Nature</span>
+            <span class="filter-btn" onclick="setFilter('forest')">Forest</span>
+            <span class="filter-btn" onclick="setFilter('mountain')">Mountains</span>
+            <span class="filter-btn" onclick="setFilter('river')">River</span>
+            <span class="filter-btn" onclick="setFilter('ocean')">Ocean</span>
+            <span class="filter-btn" onclick="setFilter('sea')">Sea</span>
+            <span class="filter-btn" onclick="setFilter('sunset')">Sunset</span>
+            <span class="filter-btn" onclick="setFilter('rain')">Rain</span>
+        </div>
+    </header>
+
+    <div class="gallery-wrap">
+        <div id="grid" class="masonry"></div>
+    </div>
+
+    <div id="lightbox" onclick="this.classList.remove('active')">
+        <div class="lb-content"></div>
+    </div>
+
+    <div class="stats" id="stats">0 ITEMS</div>
+
+    <script>
+        let tab = 'images';
+        let currentFilter = 'all';
+        let store = { images: [], videos: [], errors: [] };
+        const categories = ['forest', 'mountain', 'river', 'ocean', 'sea', 'sunset', 'rain', 'waterfall', 'beach', 'desert', 'snow', 'nature', 'landscape'];
+
+        async function sync() {
+            const ts = Date.now();
+            try {
+                const [r1, r2, r3] = await Promise.all([
+                    fetch(`./metadata/images_metadata.json?v=${ts}`).catch(() => ({ok:false})),
+                    fetch(`./metadata/videos_metadata.json?v=${ts}`).catch(() => ({ok:false})),
+                    fetch(`./metadata/failed_uploads.json?v=${ts}`).catch(() => ({ok:false}))
+                ]);
+                if (r1.ok) store.images = await r1.json();
+                if (r2.ok) store.videos = await r2.json();
+                if (r3.ok) store.errors = await r3.json();
+                render();
+            } catch(e) {}
+        }
+
+        function getBestLabel(item) {
+            const searchStr = (item.title + ' ' + (item.tags || []).join(' ')).toLowerCase();
+            for (const cat of categories) {
+                if (searchStr.includes(cat)) return cat;
+            }
+            return 'nature';
+        }
+
+        function render() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            
+            let list = store[tab];
+            if (!list || list.length === 0) return;
+
+            if (currentFilter !== 'all') {
+                list = list.filter(item => {
+                    const searchStr = (item.title + ' ' + (item.tags || []).join(' ')).toLowerCase();
+                    return searchStr.includes(currentFilter);
+                });
+            }
+
+            document.getElementById('stats').innerText = `${list.length} ${tab.toUpperCase()}`;
+
+            if (tab === 'errors') {
+                list.reverse().forEach(err => {
+                    const el = document.createElement('div');
+                    el.className = 'item';
+                    el.style.padding = '1.5rem';
+                    el.style.fontSize = '0.7rem';
+                    el.style.color = '#ef4444';
+                    el.innerHTML = `LOG: ${err.errorMessage}<br><br><span style="color:rgba(255,255,255,0.2)">ID: ${err.pixabayId}</span>`;
+                    grid.appendChild(el);
+                });
+                return;
+            }
+
+            [...list].reverse().forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'item';
+                el.onclick = (e) => { e.stopPropagation(); openLB(item); };
+                
+                const label = getBestLabel(item);
+                
+                let mediaHtml = '';
+                if (tab === 'images') {
+                    mediaHtml = `<img src="${item.cloudinaryUrl}" loading="lazy">`;
+                } else {
+                    mediaHtml = `<video muted loop playsinline><source src="${item.cloudinaryUrl}" type="video/mp4"></video>`;
+                    el.onmouseenter = () => el.querySelector('video').play();
+                    el.onmouseleave = () => { const v = el.querySelector('video'); v.pause(); v.currentTime = 0; };
+                }
+
+                el.innerHTML = `
+                    ${mediaHtml}
+                    <div class="item-label">${label}</div>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        function setFilter(f) {
+            currentFilter = f;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.toLowerCase() === f);
+            });
+            render();
+        }
+
+        function openLB(item) {
+            const lb = document.getElementById('lightbox');
+            const content = lb.querySelector('.lb-content');
+            content.innerHTML = (tab === 'images'
+                ? `<img src="${item.cloudinaryUrl}">`
+                : `<video controls autoplay loop><source src="${item.cloudinaryUrl}" type="video/mp4"></video>`) +
+                `<div class="lb-info">${item.title}</div>`;
+            lb.classList.add('active');
+        }
+
+        function switchTab(t) {
+            tab = t;
+            document.querySelectorAll('.nav-link').forEach(l => {
+                l.classList.toggle('active', l.innerText.toLowerCase() === t);
+            });
+            render();
+        }
+
+        sync();
+        setInterval(sync, 20000);
+    </script>
+</body>
+</html>

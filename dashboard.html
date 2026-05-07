@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nature Media Gallery | Premium Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --glass: rgba(255, 255, 255, 0.05);
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.1) 0, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.1) 0, transparent 50%);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass);
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-badge {
+            background: var(--glass);
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-size: 0.875rem;
+            border: 1px solid var(--glass);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4rem 5% 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(to bottom, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .tab-btn {
+            background: var(--glass);
+            border: 1px solid var(--glass);
+            color: var(--text-dim);
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 20px var(--primary-glow);
+            border-color: transparent;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* Gallery Grid */
+        .gallery-container {
+            padding: 0 5% 5rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--glass);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .media-wrapper {
+            width: 100%;
+            height: 240px;
+            overflow: hidden;
+            background: #1e293b;
+            position: relative;
+        }
+
+        .media-wrapper img, .media-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .card:hover .media-wrapper img, .card:hover .media-wrapper video {
+            transform: scale(1.1);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .action-btn {
+            display: inline-block;
+            margin-top: 1.5rem;
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--glass);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: background 0.3s;
+            border: 1px solid var(--glass);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Video Play Icon Overlay */
+        .video-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            border: 2px solid white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 10rem 0;
+            color: var(--text-dim);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* Error Message */
+        #error-notice {
+            display: none;
+            background: #ef4444;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="error-notice">
+        ⚠️ CORS Error: JSON files must be served via a local server. Try running 'npx serve' in this folder.
+    </div>
+
+    <header>
+        <div class="logo">NATURE.VISION</div>
+        <div id="total-count" class="stats-badge">Loading media...</div>
+    </header>
+
+    <section class="hero">
+        <h1>Nature Media Gallery</h1>
+        <p>A premium visualization of your automatically scraped and uploaded nature content from Pixabay.</p>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('images')">Images</button>
+            <button class="tab-btn" onclick="switchTab('videos')">Videos</button>
+        </div>
+    </section>
+
+    <main class="gallery-container">
+        <div id="gallery-grid" class="grid">
+            <!-- Content will be injected here -->
+        </div>
+    </main>
+
+    <script>
+        let currentTab = 'images';
+        let mediaData = {
+            images: [],
+            videos: []
+        };
+
+        async function loadData() {
+            try {
+                // Try to fetch the metadata files
+                const imagesRes = await fetch('./metadata/images_metadata.json');
+                const videosRes = await fetch('./metadata/videos_metadata.json');
+                
+                if (imagesRes.ok) mediaData.images = await imagesRes.json();
+                if (videosRes.ok) mediaData.videos = await videosRes.json();
+                
+                renderGallery();
+                updateStats();
+            } catch (error) {
+                console.error("Error loading metadata:", error);
+                if (window.location.protocol === 'file:') {
+                    document.getElementById('error-notice').style.display = 'block';
+                }
+                showEmptyState("Could not load metadata files. Make sure you have run the scraper and are using a local server.");
+            }
+        }
+
+        function renderGallery() {
+            const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = '';
+            
+            const items = mediaData[currentTab];
+            
+            if (!items || items.length === 0) {
+                showEmptyState(`No ${currentTab} found in metadata. Run the scraper first!`);
+                return;
+            }
+
+            items.reverse().forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                const tags = item.tags ? item.tags.slice(0, 3) : [];
+                const tagHtml = tags.map(t => `<span class="tag">${t}</span>`).join('');
+                
+                const mediaHtml = currentTab === 'images' 
+                    ? `<img src="${item.cloudinaryUrl}" alt="${item.title}" loading="lazy">`
+                    : `
+                        <video muted onmouseover="this.play()" onmouseout="this.pause(); this.currentTime=0;">
+                            <source src="${item.cloudinaryUrl}" type="video/mp4">
+                        </video>
+                        <div class="video-overlay">▶</div>
+                      `;
+
+                card.innerHTML = `
+                    <div class="media-wrapper">
+                        ${mediaHtml}
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title">${item.title || 'Nature Media'}</div>
+                        <div class="card-meta">
+                            <span>${item.cloudinaryWidth}x${item.cloudinaryHeight}</span>
+                            <span>${new Date(item.uploadedAt).toLocaleDateString()}</span>
+                        </div>
+                        <div class="tag-list">
+                            ${tagHtml}
+                        </div>
+                        <a href="${item.cloudinaryUrl}" target="_blank" class="action-btn">View Original</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.toLowerCase() === tab);
+            });
+            renderGallery();
+        }
+
+        function updateStats() {
+            const total = mediaData.images.length + mediaData.videos.length;
+            document.getElementById('total-count').innerText = `${total} Items Collected`;
+        }
+
+        function showEmptyState(msg) {
+            const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <i>🍃</i>
+                    <p>${msg}</p>
+                </div>
+            `;
+        }
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>

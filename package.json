@@ -1,0 +1,41 @@
+{
+    "name": "nature-media-uploader",
+    "version": "1.0.0",
+    "description": "Scrapes nature photos/videos from Pixabay and uploads to Cloudinary",
+    "main": "src/index.js",
+    "scripts": {
+        "start": "node src/index.js",
+        "dev": "nodemon src/index.js",
+        "clean": "node -e \"require('fs-extra').emptyDirSync('./downloads'); require('fs-extra').emptyDirSync('./metadata');\"",
+        "clean:downloads": "node -e \"require('fs-extra').emptyDirSync('./downloads/images'); require('fs-extra').emptyDirSync('./downloads/videos');\"",
+        "clean:metadata": "node -e \"require('fs-extra').emptyDirSync('./metadata');\"",
+        "lint": "eslint src/**/*.js",
+        "gallery": "npx serve ./"
+    },
+    "dependencies": {
+        "axios": "^1.6.5",
+        "cloudinary": "^1.41.3",
+        "dotenv": "^16.3.2",
+        "express": "^4.18.2",
+        "fs-extra": "^11.2.0",
+        "input": "^1.0.1",
+        "mongoose": "^8.1.1",
+        "telegram": "^2.26.22"
+    },
+    "devDependencies": {
+        "eslint": "^8.56.0",
+        "nodemon": "^3.0.3"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    },
+    "keywords": [
+        "pixabay",
+        "cloudinary",
+        "nature",
+        "media",
+        "scraper"
+    ],
+    "author": "",
+    "license": "MIT"
+}
