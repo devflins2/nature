@@ -12,7 +12,6 @@ const {
     getFileSizeFormatted,
 } = require('../utils/fileUtils');
 const {
-    isAlreadyUploaded,
     recordSuccessfulUpload,
     recordFailedUpload,
 } = require('./metadataService');
@@ -164,7 +163,7 @@ async function uploadBatch(downloadedItems, type, uploadedIds, stats) {
 
             try {
                 // Check if already uploaded (duplicate prevention)
-                if (isAlreadyUploaded(item.id, type, uploadedIds)) {
+                if (uploadedIds[type].has(String(item.id))) {
                     logger.skip(`Already uploaded ${type} ID: ${item.id}`);
                     if (type === 'images') stats.imagesSkipped++;
                     else stats.videosSkipped++;
