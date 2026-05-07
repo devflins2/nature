@@ -266,6 +266,67 @@
             text-align: center;
             font-weight: 600;
         }
+
+        /* Login Form Styles */
+        .login-container {
+            grid-column: 1 / -1;
+            max-width: 400px;
+            margin: 2rem auto;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 24px;
+            border: 1px solid var(--glass);
+            backdrop-filter: blur(20px);
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .login-container h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass);
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .login-input:focus {
+            border-color: var(--primary);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .login-error {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -299,6 +360,7 @@
 
     <script>
         let currentTab = 'images';
+        let isAuthenticated = false;
         let mediaData = {
             images: [],
             videos: [],
@@ -327,11 +389,17 @@
         async function updateLogs() {
             try {
                 if (currentTab !== 'logs') return;
+
+                const grid = document.getElementById('gallery-grid');
+                
+                if (!isAuthenticated) {
+                    renderLoginForm();
+                    return;
+                }
                 
                 const response = await fetch('/api/logs');
                 const logs = await response.json();
                 
-                const grid = document.getElementById('gallery-grid');
                 grid.innerHTML = '<div style="grid-column: 1/-1; background: rgba(15, 23, 42, 0.6); padding: 2rem; border-radius: 1rem; font-family: monospace; font-size: 0.9rem; border: 1px solid var(--glass); max-height: 600px; overflow-y: auto;"></div>';
                 const container = grid.firstChild;
                 
@@ -350,6 +418,45 @@
                 }
             } catch (err) {
                 console.error("Failed to fetch logs", err);
+            }
+        }
+
+        function renderLoginForm() {
+            const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = `
+                <div class="login-container">
+                    <h2>Admin Logs Access</h2>
+                    <input type="text" id="admin-user" class="login-input" placeholder="Admin Username">
+                    <input type="password" id="admin-pass" class="login-input" placeholder="Admin Password">
+                    <button onclick="handleLogin()" class="login-btn">Authenticate</button>
+                    <div id="login-error" class="login-error">Invalid credentials. Access denied.</div>
+                </div>
+            `;
+        }
+
+        async function handleLogin() {
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+            const errorEl = document.getElementById('login-error');
+            
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user, pass })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    isAuthenticated = true;
+                    updateLogs();
+                } else {
+                    errorEl.style.display = 'block';
+                }
+            } catch (err) {
+                errorEl.style.display = 'block';
+                errorEl.innerText = "Connection failed. Please try again.";
             }
         }
 

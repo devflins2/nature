@@ -51,6 +51,8 @@ const APP_CONFIG = {
   apiRequestDelayMs: parseInt(process.env.API_REQUEST_DELAY_MS) || 1000,
   maxConcurrentUploads: parseInt(process.env.MAX_CONCURRENT_UPLOADS) || 3,
   maxFileSizeMb: parseInt(process.env.MAX_FILE_SIZE_MB) || 50,
+  keywordsPerCycle: parseInt(process.env.KEYWORDS_PER_CYCLE) || 8,
+  pexelsApiKey: process.env.PEXELS_API_KEY,
   verboseLogging: process.env.VERBOSE_LOGGING === 'true',
   telegram: {
     enabled: process.env.ENABLE_TELEGRAM === 'true',

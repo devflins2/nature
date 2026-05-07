@@ -72,6 +72,7 @@ async function fetchImages(keyword, perPage = 20, page = 1) {
                 downloads: item.downloads,
                 likes: item.likes,
                 user: item.user,
+                source: 'pixabay',
                 keyword,
                 fetchedAt: new Date().toISOString(),
             }));
@@ -136,6 +137,7 @@ async function fetchVideos(keyword, perPage = 20, page = 1) {
                     downloads: item.downloads,
                     likes: item.likes,
                     user: item.user,
+                    source: 'pixabay',
                     keyword,
                     fetchedAt: new Date().toISOString(),
                 };
@@ -167,7 +169,7 @@ async function fetchAllMedia(perKeyword = APP_CONFIG.resultsPerKeyword) {
     
     // SHUFFLE and pick a random subset of keywords for this cycle
     const shuffledKeywords = [...APP_CONFIG.searchKeywords].sort(() => 0.5 - Math.random());
-    const keywords = shuffledKeywords.slice(0, 8); // Process 8 random keywords per cycle
+    const keywords = shuffledKeywords.slice(0, APP_CONFIG.keywordsPerCycle);
 
     logger.section('FETCHING MEDIA FROM PIXABAY (RANDOMIZED CYCLE)');
     logger.step('Selected Keywords', keywords.join(', '));
@@ -178,8 +180,9 @@ async function fetchAllMedia(perKeyword = APP_CONFIG.resultsPerKeyword) {
         logger.progress('Fetching from Pixabay', i + 1, keywords.length, `keyword: "${keyword}"`);
 
         try {
+            const randomPage = Math.floor(Math.random() * 10) + 1; // Random page 1-10
             // Fetch images
-            const images = await fetchImages(keyword, perKeyword);
+            const images = await fetchImages(keyword, perKeyword, randomPage);
             allImages.push(...images);
             logger.info(`  Images: +${images.length} (total: ${allImages.length})`, true);
 
@@ -187,7 +190,7 @@ async function fetchAllMedia(perKeyword = APP_CONFIG.resultsPerKeyword) {
             await sleep(APP_CONFIG.apiRequestDelayMs / 2);
 
             // Fetch videos
-            const videos = await fetchVideos(keyword, perKeyword);
+            const videos = await fetchVideos(keyword, perKeyword, randomPage);
             allVideos.push(...videos);
             logger.info(`  Videos: +${videos.length} (total: ${allVideos.length})`, true);
         } catch (error) {

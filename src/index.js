@@ -6,7 +6,8 @@ const { exec } = require('child_process');
 
 const { APP_CONFIG } = require('./config/cloudinary');
 const { connectDB } = require('./config/db');
-const { fetchAllMedia } = require('./services/pixabayService');
+const { fetchAllMedia: fetchPixabay } = require('./services/pixabayService');
+const { fetchAllMedia: fetchPexels } = require('./services/pexelsService');
 const { downloadBatch } = require('./services/downloadService');
 const { uploadBatch, createStats } = require('./services/uploadService');
 const { loadUploadedIds, getMetadataSummary, recordSuccessfulUpload } = require('./services/metadataService');
@@ -178,8 +179,12 @@ async function runPipeline() {
     // Load existing upload tracking
     const uploadedIds = await loadUploadedIds();
     
-    // Fetch media from Pixabay
-    const { images, videos } = await fetchAllMedia(APP_CONFIG.resultsPerKeyword);
+    // Fetch media from multiple sources
+    const pixabayData = await fetchPixabay(APP_CONFIG.resultsPerKeyword);
+    const pexelsData = await fetchPexels(APP_CONFIG.resultsPerKeyword);
+
+    const images = [...pixabayData.images, ...pexelsData.images];
+    const videos = [...pixabayData.videos, ...pexelsData.videos];
 
     // Filter out already-uploaded items
     const newImages = images.filter(img => !uploadedIds.images.has(String(img.id)));
@@ -227,8 +232,17 @@ async function runPipeline() {
                 if (results && results.length > 0) cloudinaryResult = results[0];
             } else {
                 logger.warn(`Skipping Cloudinary for ${item.id}: File too large (${fileSizeMB.toFixed(1)}MB)`);
-                // Record in DB even if skipped Cloudinary (for tracking)
-                await recordSuccessfulUpload(item, { secure_url: 'skipped_due_to_size' }, type, uploadedIds);
+                // Record in DB with a placeholder URL so we don't try to re-upload it to Cloudinary
+                const { Media } = require('./config/db');
+                await Media.create({
+                    pixabayId: item.id,
+                    title: item.title || item.tags?.[0] || 'Nature Media',
+                    cloudinaryUrl: 'skipped_due_to_size',
+                    type: type,
+                    uploadedAt: new Date(),
+                    tags: item.tags || []
+                });
+                uploadedIds[type].add(String(item.id));
             }
             
             // Telegram Upload (Always try Telegram)

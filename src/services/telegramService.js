@@ -64,9 +64,10 @@ async function sendMediaToTelegram(localPath, item, type) {
         }
 
         const tagsString = Array.isArray(item.tags) ? item.tags.join(', ') : (item.tags || 'nature');
+        const sourceName = item.source === 'pexels' ? 'Pexels' : 'Pixabay';
         const caption = `🌿 **${item.title || 'Nature Media'}**\n\n` +
                         `🏷 **Tags:** ${tagsString}\n\n` +
-                        `🔗 [View on Pixabay](${item.pageURL || item.pixabayUrl})`;
+                        `🔗 [View on ${sourceName}](${item.pageURL || item.pixabayUrl})`;
 
         logger.step('Telegram', `Uploading ${item.id}...`);
 
