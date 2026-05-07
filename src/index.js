@@ -22,51 +22,78 @@ app.use(express.static(path.join(__dirname, '../')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '../dashboard.html')));
 app.get('/health', (req, res) => res.send('OK'));
 
-// API to fetch media from BOTH MongoDB and Cloudinary (The Ultimate Fetch)
+// API to fetch media from MongoDB (High Speed + Pagination)
 app.get('/api/media', async (req, res) => {
     try {
         const { Media } = require('./config/db');
-        const cloudinary = require('cloudinary').v2;
+        const limit = parseInt(req.query.limit) || 40;
+        const offset = parseInt(req.query.offset) || 0;
         
-        // 1. Get everything from our Database
-        const dbMedia = await Media.find({}).sort({ uploadedAt: -1 });
+        // Fetch with pagination for super-fast response
+        const images = await Media.find({ type: 'images' })
+            .sort({ uploadedAt: -1 })
+            .skip(offset)
+            .limit(limit);
+            
+        const videos = await Media.find({ type: 'videos' })
+            .sort({ uploadedAt: -1 })
+            .skip(offset)
+            .limit(limit);
 
-        // 2. Try to get LIVE updates from Cloudinary (Merge)
-        let cloudItems = [];
-        try {
-            if (process.env.CLOUDINARY_URL) {
-                cloudinary.config(true);
-                const cloudRes = await cloudinary.api.resources({ 
-                    type: 'upload', 
-                    max_results: 500,
-                    context: true 
-                });
-                cloudItems = cloudRes.resources.map(r => ({
-                    title: r.context?.custom?.caption || r.public_id.split('/').pop(),
-                    cloudinaryUrl: r.secure_url,
-                    type: r.resource_type === 'image' ? 'images' : 'videos',
-                    uploadedAt: r.created_at,
-                    cloudinaryFormat: r.format
-                }));
-            }
-        } catch (cErr) {
-            console.log("[API] Cloudinary live fetch skipped or failed.");
-        }
-
-        // Merge and remove duplicates (by URL)
-        const allMedia = [...dbMedia, ...cloudItems];
-        const uniqueMedia = Array.from(new Map(allMedia.map(item => [item.cloudinaryUrl, item])).values())
-            .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
-
-        res.json({ 
-            images: uniqueMedia.filter(m => m.type === 'images'), 
-            videos: uniqueMedia.filter(m => m.type === 'videos') 
-        });
+        res.json({ images, videos });
     } catch (err) {
         console.error("API Fetch Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
+
+// Background Sync Task: Merges existing Cloudinary assets into DB every 15 mins
+const syncCloudinaryToDB = async () => {
+    try {
+        const cloudinary = require('cloudinary').v2;
+        const { Media } = require('./config/db');
+        if (!process.env.CLOUDINARY_URL) return;
+
+        cloudinary.config(true);
+        console.log("[Sync] Checking Cloudinary for existing assets...");
+        
+        const fetchAndSync = async (resourceType) => {
+            const cloudRes = await cloudinary.api.resources({ 
+                resource_type: resourceType,
+                type: 'upload', 
+                max_results: 500,
+                context: true 
+            });
+
+            for (const r of cloudRes.resources) {
+                const url = r.secure_url;
+                const exists = await Media.findOne({ cloudinaryUrl: url });
+                if (!exists) {
+                    await Media.create({
+                        pixabayId: r.context?.custom?.pixabay_id || r.public_id.split('/').pop(),
+                        title: r.context?.custom?.caption || r.public_id.split('/').pop(),
+                        cloudinaryUrl: url,
+                        type: r.resource_type === 'image' ? 'images' : 'videos',
+                        uploadedAt: r.created_at,
+                        cloudinaryFormat: r.format,
+                        tags: r.tags || []
+                    });
+                    console.log(`[Sync] Added missing ${r.resource_type}: ${url}`);
+                }
+            }
+        };
+
+        await fetchAndSync('image');
+        await fetchAndSync('video');
+        console.log("[Sync] Cloudinary background sync complete.");
+    } catch (err) {
+        console.error("[Sync] Background sync failed:", err.message);
+    }
+};
+
+// Run sync on startup and every 15 minutes
+syncCloudinaryToDB();
+setInterval(syncCloudinaryToDB, 15 * 60 * 1000);
 
 // Admin Auth Check
 app.post('/api/auth', (req, res) => {

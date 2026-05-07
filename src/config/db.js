@@ -9,12 +9,12 @@ const logger = require('../utils/logger');
  */
 const mediaSchema = new mongoose.Schema({
     pixabayId: { type: String, required: true, unique: true, index: true },
-    type: { type: String, enum: ['images', 'videos'], required: true },
+    type: { type: String, enum: ['images', 'videos'], required: true, index: true },
     title: String,
     tags: [String],
     pixabayUrl: String,
     cloudinaryUrl: String,
-    uploadedAt: { type: Date, default: Date.now },
+    uploadedAt: { type: Date, default: Date.now, index: true },
 });
 
 const Media = mongoose.model('Media', mediaSchema);

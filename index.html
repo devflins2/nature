@@ -70,21 +70,20 @@
             border: 1px solid var(--glass-border);
             color: var(--primary-bright);
             font-weight: 700;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .hero {
-            padding: 5rem 5% 3rem;
+            padding: 4rem 5% 2rem;
             text-align: center;
         }
 
         .hero h1 {
             font-family: 'Montserrat', sans-serif;
-            font-size: clamp(2.5rem, 10vw, 4.5rem);
+            font-size: clamp(2.5rem, 10vw, 4rem);
             font-weight: 900;
             margin-bottom: 0.8rem;
             letter-spacing: -2px;
-            line-height: 0.9;
+            line-height: 1;
             background: linear-gradient(to bottom, #ffffff, #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -92,9 +91,9 @@
 
         .hero p {
             color: var(--text-dim);
-            font-size: 1.05rem;
-            max-width: 550px;
-            margin: 0 auto 3rem;
+            font-size: 1rem;
+            max-width: 500px;
+            margin: 0 auto 2.5rem;
             font-weight: 300;
         }
 
@@ -102,7 +101,7 @@
             display: flex;
             justify-content: center;
             gap: 0.6rem;
-            margin-bottom: 4rem;
+            margin-bottom: 3rem;
             overflow-x: auto;
             padding: 0.5rem;
             scrollbar-width: none;
@@ -114,59 +113,61 @@
             background: var(--glass);
             border: 1px solid var(--glass-border);
             color: var(--text-dim);
-            padding: 0.8rem 1.8rem;
+            padding: 0.8rem 1.6rem;
             border-radius: 16px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.95rem;
-            white-space: nowrap;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
         }
 
         .tab-btn.active {
             background: var(--primary);
             color: white;
-            box-shadow: 0 10px 25px var(--primary-glow);
+            box-shadow: 0 10px 20px var(--primary-glow);
             border-color: transparent;
-            transform: scale(1.05);
         }
 
         .gallery-container {
-            padding: 0 5% 6rem;
+            padding: 0 5% 4rem;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
         }
 
         @media (max-width: 600px) {
             .grid { grid-template-columns: 1fr; gap: 1.5rem; }
-            .hero { padding: 3rem 5% 2rem; }
-            .hero h1 { font-size: 3rem; }
+            .hero { padding-top: 2rem; }
         }
 
         .card {
             background: var(--card-bg);
-            border-radius: 30px;
+            border-radius: 24px;
             overflow: hidden;
             border: 1px solid var(--glass-border);
             cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .card:hover {
-            transform: translateY(-15px) scale(1.02);
+            transform: translateY(-10px);
             border-color: rgba(16, 185, 129, 0.4);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
         .media-wrapper {
             aspect-ratio: 1/1;
             overflow: hidden;
-            background: #000;
+            background: #090c15;
             position: relative;
         }
 
@@ -174,22 +175,17 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.8s ease;
-        }
-
-        .card:hover .media-wrapper img, .card:hover .media-wrapper video {
-            transform: scale(1.15);
+            transition: transform 0.6s ease;
         }
 
         .card-content {
-            padding: 1.8rem;
-            background: linear-gradient(to top, var(--card-bg), transparent);
+            padding: 1.5rem;
         }
 
         .card-title {
             font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 0.4rem;
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
             color: white;
             white-space: nowrap;
             overflow: hidden;
@@ -201,10 +197,9 @@
             justify-content: space-between;
             font-size: 0.8rem;
             color: var(--text-dim);
-            font-weight: 500;
         }
 
-        /* Modal Viewer */
+        /* Viewer */
         #viewer {
             position: fixed;
             top: 0; left: 0;
@@ -216,46 +211,48 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px;
-            animation: fadeIn 0.4s ease;
+            padding: 20px;
         }
 
         #viewer-content {
             max-width: 100%;
             max-height: 80vh;
-            border-radius: 24px;
-            box-shadow: 0 0 80px rgba(16, 185, 129, 0.2);
-            object-fit: contain;
+            border-radius: 20px;
+            box-shadow: 0 0 60px rgba(16, 185, 129, 0.15);
         }
 
         .close-viewer {
             position: absolute;
-            top: 30px; right: 30px;
-            width: 50px; height: 50px;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
+            top: 20px; right: 20px;
+            width: 44px; height: 44px;
+            background: rgba(255,255,255,0.1);
+            border: none;
             border-radius: 50%;
             color: white;
-            font-size: 30px;
+            font-size: 24px;
             cursor: pointer;
+        }
+
+        #load-more-trigger {
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: var(--primary);
+            font-weight: 600;
+            grid-column: 1/-1;
         }
 
-        .viewer-title {
-            margin-top: 25px;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: 700;
-            text-align: center;
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, var(--card-bg) 25%, #1e293b 50%, var(--card-bg) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
         }
 
-        /* Footer */
-        footer {
-            padding: 4rem 5%;
-            text-align: center;
-            border-top: 1px solid var(--glass-border);
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
     </style>
 </head>
@@ -263,167 +260,159 @@
 
     <header>
         <div class="logo">NATURE VISION</div>
-        <div id="total-count" class="stats-badge">...</div>
+        <div id="total-count" class="stats-badge">Loading...</div>
     </header>
 
     <div id="viewer" onclick="closeViewer()">
-        <button class="close-viewer" onclick="closeViewer()">&times;</button>
+        <button class="close-viewer">&times;</button>
         <div id="viewer-media-container" style="display:contents"></div>
-        <div class="viewer-title" id="viewer-title"></div>
     </div>
 
     <section class="hero">
         <h1>Visions of Nature</h1>
-        <p>A curated collection of the world's most breathtaking moments, automatically captured and preserved.</p>
+        <p>Ultra-premium nature gallery optimized for instant discovery.</p>
         
         <div class="tabs">
             <button class="tab-btn active" data-tab="images" onclick="switchTab('images')">Images</button>
             <button class="tab-btn" data-tab="videos" onclick="switchTab('videos')">Videos</button>
-            <button class="tab-btn" data-tab="all" onclick="switchTab('all')">All Collection</button>
+            <button class="tab-btn" data-tab="all" onclick="switchTab('all')">All Library</button>
             <button class="tab-btn" data-tab="logs" onclick="handleLogTab()">System Logs</button>
         </div>
     </section>
 
     <main class="gallery-container">
         <div id="gallery-grid" class="grid"></div>
+        <div id="load-more-trigger">
+            <div id="loading-spinner">✨ Exploring more nature...</div>
+        </div>
     </main>
-
-    <footer>
-        <p style="font-size: 0.9rem; color: var(--text-dim);">Built with Nature Vision Engine &bull; 2026</p>
-    </footer>
 
     <script>
         let currentTab = 'images';
         let mediaData = { images: [], videos: [], all: [] };
+        let offset = { images: 0, videos: 0, all: 0 };
+        let isLoading = false;
+        let hasMore = { images: true, videos: true, all: true };
         let authenticated = false;
+        const LIMIT = 40;
 
-        async function loadData() {
+        // Cloudinary Optimization Helper
+        function getOptimizedUrl(url, type) {
+            if (!url || url === 'skipped_due_to_size') return url;
+            if (type === 'video') return url.replace('/upload/', '/upload/f_auto,q_auto,w_800,c_limit/');
+            return url.replace('/upload/', '/upload/f_auto,q_auto,w_600,c_limit/');
+        }
+
+        async function fetchMore() {
+            if (isLoading || !hasMore[currentTab]) return;
+            isLoading = true;
+            
             try {
-                const response = await fetch('/api/media');
+                const response = await fetch(`/api/media?limit=${LIMIT}&offset=${offset[currentTab]}`);
                 const data = await response.json();
-                mediaData.images = data.images || [];
-                mediaData.videos = data.videos || [];
-                mediaData.all = [...mediaData.images, ...mediaData.videos];
-                renderGallery();
+                
+                const newImages = data.images || [];
+                const newVideos = data.videos || [];
+                
+                if (currentTab === 'images') {
+                    mediaData.images.push(...newImages);
+                    if (newImages.length < LIMIT) hasMore.images = false;
+                    offset.images += LIMIT;
+                    renderNewItems(newImages, 'image');
+                } else if (currentTab === 'videos') {
+                    mediaData.videos.push(...newVideos);
+                    if (newVideos.length < LIMIT) hasMore.videos = false;
+                    offset.videos += LIMIT;
+                    renderNewItems(newVideos, 'video');
+                } else {
+                    const combined = [...newImages, ...newVideos];
+                    mediaData.all.push(...combined);
+                    if (combined.length === 0) hasMore.all = false;
+                    offset.all += LIMIT;
+                    renderNewItems(combined, 'mixed');
+                }
+                
                 updateStats();
             } catch (error) {
                 console.error("Fetch error:", error);
+            } finally {
+                isLoading = false;
             }
         }
 
-        function renderGallery() {
-            if (currentTab === 'logs') {
-                updateLogs();
-                return;
-            }
-
+        function renderNewItems(items, type) {
             const grid = document.getElementById('gallery-grid');
-            grid.innerHTML = '';
-            const items = mediaData[currentTab];
-            
-            if (!items || items.length === 0) {
-                grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1; text-align:center; padding:5rem; color:var(--text-dim);">No discoveries found yet.</div>';
-                return;
-            }
-
-            items.forEach((item, index) => {
+            items.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.onclick = () => openViewer(item);
                 
                 const isVideo = item.cloudinaryUrl.includes('.mp4') || item.type === 'videos';
+                const optimizedUrl = getOptimizedUrl(item.cloudinaryUrl, isVideo ? 'video' : 'image');
+                
                 let mediaHtml;
-
                 if (!isVideo) {
-                    mediaHtml = `<img src="${item.cloudinaryUrl}" loading="lazy">`;
+                    mediaHtml = `<img src="${optimizedUrl}" loading="lazy">`;
                 } else {
                     if (item.cloudinaryUrl === 'skipped_due_to_size') {
-                        mediaHtml = `<div style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#161d2f; color:var(--primary); padding:1rem; text-align:center;">
-                            <div style="font-size:3rem; margin-bottom:1rem;">📽️</div>
-                            <div style="font-weight:800;">TELEGRAM EXCLUSIVE</div>
-                        </div>`;
+                        mediaHtml = `<div style="height:100%; display:flex; align-items:center; justify-content:center; background:#161d2f; color:var(--primary); font-weight:800;">📽️ TELEGRAM</div>`;
                     } else {
-                        mediaHtml = `<video muted onmouseover="this.play()" onmouseout="this.pause()"><source src="${item.cloudinaryUrl}#t=0.5" type="video/mp4"></video>`;
+                        mediaHtml = `<video muted onmouseover="this.play()" onmouseout="this.pause()"><source src="${optimizedUrl}#t=0.5" type="video/mp4"></video>`;
                     }
                 }
 
                 card.innerHTML = `
                     <div class="media-wrapper">${mediaHtml}</div>
                     <div class="card-content">
-                        <div class="card-title">${item.title || 'Nature Discovery'}</div>
+                        <div class="card-title">${item.title || 'Nature Clip'}</div>
                         <div class="card-meta">
                             <span>${new Date(item.uploadedAt).toLocaleDateString()}</span>
-                            <span style="color:var(--primary)">${item.cloudinaryFormat?.toUpperCase() || 'HD'}</span>
+                            <span style="color:var(--primary)">EXPLORE</span>
                         </div>
                     </div>
                 `;
                 grid.appendChild(card);
+                setTimeout(() => card.classList.add('visible'), 50);
             });
+        }
+
+        function switchTab(tab) {
+            if (currentTab === tab) return;
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+            document.getElementById('gallery-grid').innerHTML = '';
+            if (mediaData[tab].length === 0) {
+                offset[tab] = 0;
+                hasMore[tab] = true;
+                fetchMore();
+            } else {
+                renderNewItems(mediaData[tab], tab);
+            }
         }
 
         async function handleLogTab() {
             if (!authenticated) {
-                const user = prompt("Enter Admin Username:");
-                const pass = prompt("Enter Admin Password:");
-                
-                const res = await fetch('/api/auth', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user, pass })
-                });
-                
+                const user = prompt("Admin User:");
+                const pass = prompt("Admin Pass:");
+                const res = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user,pass})});
                 const data = await res.json();
-                if (data.success) {
-                    authenticated = true;
-                    switchTab('logs');
-                } else {
-                    alert("Invalid Credentials!");
-                }
-            } else {
-                switchTab('logs');
-            }
-        }
-
-        async function updateLogs() {
-            const grid = document.getElementById('gallery-grid');
-            grid.innerHTML = '<div id="log-container" style="grid-column: 1/-1; background: #000; padding: 2.5rem; border-radius: 24px; font-family: monospace; font-size: 0.9rem; max-height: 600px; overflow-y: auto; color: #10b981; border: 1px solid var(--glass-border);">Loading system metrics...</div>';
-            
-            try {
-                const response = await fetch('/api/logs');
-                const logs = await response.json();
-                const container = document.getElementById('log-container');
-                container.innerHTML = logs.map(l => `
-                    <div style="margin-bottom: 0.6rem; display:flex;">
-                        <span style="color: #64748b; margin-right:1rem;">[${l.time}]</span> 
-                        <span style="color: ${l.type === 'error' ? '#ef4444' : '#10b981'}">${l.message}</span>
-                    </div>
-                `).join('');
-                container.scrollTop = container.scrollHeight;
-            } catch (err) {
-                console.error("Log fetch failed", err);
-            }
+                if (data.success) { authenticated = true; switchTab('logs'); }
+                else alert("Access Denied");
+            } else { switchTab('logs'); }
         }
 
         function openViewer(item) {
             const viewer = document.getElementById('viewer');
             const container = document.getElementById('viewer-media-container');
-            const title = document.getElementById('viewer-title');
-            
             const isVideo = item.cloudinaryUrl.includes('.mp4') || item.type === 'videos';
             
             if (item.cloudinaryUrl === 'skipped_due_to_size') {
-                container.innerHTML = `<div style="color:white; text-align:center; padding:2rem;">
-                    <div style="font-size:5rem; margin-bottom:2rem;">📽️</div>
-                    <h2 style="margin-bottom:1rem;">Large Format Video</h2>
-                    <p style="color:var(--text-dim); max-width:400px;">This video exceeds Cloudinary's size limit and is stored exclusively on your Telegram group.</p>
-                </div>`;
+                container.innerHTML = `<div style="color:white; text-align:center;"><h2>Telegram Large File</h2></div>`;
             } else if (isVideo) {
-                container.innerHTML = `<video id="viewer-content" controls autoplay><source src="${item.cloudinaryUrl}" type="video/mp4"></video>`;
+                container.innerHTML = `<video id="viewer-content" controls autoplay src="${item.cloudinaryUrl}"></video>`;
             } else {
                 container.innerHTML = `<img id="viewer-content" src="${item.cloudinaryUrl}">`;
             }
-            
-            title.innerText = item.title || 'Discovery Preview';
             viewer.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
@@ -434,18 +423,19 @@
             document.body.style.overflow = 'auto';
         }
 
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
-            renderGallery();
-        }
-
         function updateStats() {
-            document.getElementById('total-count').innerText = `${mediaData.all.length} Discoveries`;
+            document.getElementById('total-count').innerText = `${mediaData.images.length + mediaData.videos.length} Discoveries`;
         }
 
-        loadData();
-        setInterval(loadData, 30000);
+        // Infinite Scroll
+        window.onscroll = () => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+                fetchMore();
+            }
+        };
+
+        // Initial Load
+        fetchMore();
     </script>
 </body>
 </html>
