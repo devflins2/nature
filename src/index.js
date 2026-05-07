@@ -202,7 +202,7 @@ async function runPipeline() {
     const allNewMedia = [
         ...newImages.map(item => ({ item, type: 'images' })),
         ...newVideos.map(item => ({ item, type: 'videos' }))
-    ];
+    ].sort(() => 0.5 - Math.random()); // SHUFFLE to mix images and videos
 
     // Process items one-by-one to save RAM on Render
     for (let i = 0; i < allNewMedia.length; i++) {
