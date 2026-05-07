@@ -1,6 +1,5 @@
-require('dotenv').config();
-const { initCloudinary, APP_CONFIG } = require('../config/cloudinary');
-const { connectDB, Media } = require('../config/db');
+const { initCloudinary } = require('../config/cloudinary');
+const { Media } = require('../config/db');
 const logger = require('../utils/logger');
 
 const cloudinary = initCloudinary();
@@ -8,11 +7,9 @@ const cloudinary = initCloudinary();
 /**
  * Syncs existing Cloudinary resources to MongoDB
  */
-async function sync() {
+async function syncCloudinary() {
     try {
-        logger.section('🔄 SYNCING CLOUDINARY WITH MONGODB');
-        
-        await connectDB();
+        logger.section('🔄 AUTO-SYNCING CLOUDINARY');
         
         const resourceTypes = ['image', 'video'];
         
@@ -32,13 +29,10 @@ async function sync() {
                 });
 
                 for (const resource of result.resources) {
-                    // Use public_id as unique identifier to avoid collisions
                     const uniqueId = resource.public_id;
                     const pixabayId = resource.context?.custom?.pixabay_id || uniqueId.split('/').pop();
-                    
                     const type = resourceType === 'image' ? 'images' : 'videos';
 
-                    // Check if already in DB by either Cloudinary Public ID OR Pixabay ID
                     const exists = await Media.findOne({ 
                         $or: [
                             { cloudinaryPublicId: uniqueId },
@@ -62,34 +56,25 @@ async function sync() {
                                 uploadedAt: new Date(resource.created_at)
                             });
                             totalSynced++;
-                            logger.info(`+ Synced: ${uniqueId}`);
                         } catch (err) {
-                            if (err.code === 11000) {
-                                logger.skip(`Duplicate ID ${pixabayId} found. Skipping.`);
-                            } else {
-                                throw err;
-                            }
+                            if (err.code !== 11000) logger.error('Sync Error', err);
                         }
-                    } else {
-                        // Optionally update URL if it changed
-                        exists.cloudinaryUrl = resource.secure_url;
-                        await exists.save();
                     }
                 }
-
                 nextCursor = result.next_cursor;
             } while (nextCursor);
-
-            logger.success(`Finished syncing ${resourceType}s. Total: ${totalSynced}`);
+            
+            logger.success(`Finished ${resourceType}s. Synced ${totalSynced} new items.`);
         }
-
-        logger.success('✅ Sync completed successfully!');
-        process.exit(0);
     } catch (error) {
-        console.error('❌ DETAILED SYNC ERROR:', error);
-        if (error.error) console.error('Cloudinary Error Detail:', error.error);
-        process.exit(1);
+        logger.error('Auto-sync failed:', error.message);
     }
 }
 
-sync();
+// Support direct execution too
+if (require.main === module) {
+    const { connectDB } = require('../config/db');
+    connectDB().then(() => syncCloudinary()).then(() => process.exit(0));
+}
+
+module.exports = { syncCloudinary };
