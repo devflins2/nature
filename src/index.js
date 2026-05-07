@@ -22,14 +22,62 @@ app.use(express.static(path.join(__dirname, '../')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '../dashboard.html')));
 app.get('/health', (req, res) => res.send('OK'));
 
-// API to fetch media from MongoDB for the dashboard
+// API to fetch ALL media DIRECTLY from Cloudinary (Live & Recursive)
 app.get('/api/media', async (req, res) => {
     try {
+        const cloudinary = require('cloudinary').v2;
+        cloudinary.config(true);
+
+        const fetchAllResources = async (resourceType) => {
+            let resources = [];
+            let nextCursor = null;
+            do {
+                const res = await cloudinary.api.resources({
+                    resource_type: resourceType,
+                    max_results: 500,
+                    next_cursor: nextCursor,
+                    context: true,
+                    tags: true
+                });
+                resources = resources.concat(res.resources);
+                nextCursor = res.next_cursor;
+            } while (nextCursor);
+            return resources;
+        };
+
+        // Fetch everything live
+        const [cloudImages, cloudVideos] = await Promise.all([
+            fetchAllResources('image'),
+            fetchAllResources('video')
+        ]);
+
+        // Still fetch skipped videos from DB (Telegram only files)
         const { Media } = require('./config/db');
-        const images = await Media.find({ type: 'images' }).sort({ uploadedAt: -1 });
-        const videos = await Media.find({ type: 'videos' }).sort({ uploadedAt: -1 });
+        const skippedMedia = await Media.find({ cloudinaryUrl: 'skipped_due_to_size' });
+
+        const images = cloudImages.map(r => ({
+            pixabayId: r.context?.custom?.pixabay_id || r.context?.pixabay_id || r.public_id.split('/').pop(),
+            title: r.context?.custom?.caption || r.context?.caption || r.public_id.split('/').pop(),
+            cloudinaryUrl: r.secure_url,
+            cloudinaryWidth: r.width,
+            cloudinaryHeight: r.height,
+            uploadedAt: r.created_at,
+            tags: r.tags || []
+        }));
+
+        const videos = [...cloudVideos.map(r => ({
+            pixabayId: r.context?.custom?.pixabay_id || r.context?.pixabay_id || r.public_id.split('/').pop(),
+            title: r.context?.custom?.caption || r.context?.caption || r.public_id.split('/').pop(),
+            cloudinaryUrl: r.secure_url,
+            uploadedAt: r.created_at,
+            tags: r.tags || []
+        })), ...skippedMedia].sort((a, b) => 
+            new Date(b.uploadedAt || b.created_at) - new Date(a.uploadedAt || a.created_at)
+        );
+
         res.json({ images, videos });
     } catch (err) {
+        console.error("Direct Fetch Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -75,17 +123,6 @@ async function main() {
     // 1. Setup
     await ensureDirectories(APP_CONFIG.paths);
     await connectDB();
-
-    // 2. Background Auto-Sync (Non-blocking)
-    const { syncCloudinary } = require('./scripts/syncCloudinary');
-    
-    // Run immediately
-    syncCloudinary().catch(e => logger.error('Initial sync failed', e));
-    
-    // Schedule every 30 mins
-    setInterval(() => {
-        syncCloudinary().catch(e => logger.error('Periodic sync failed', e));
-    }, 30 * 60 * 1000);
 
     // Start the automation loop
     runAutomationLoop();
