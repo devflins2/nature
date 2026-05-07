@@ -2,21 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Nature Vision | Luxury Media Portfolio</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #10b981;
-            --primary-bright: #34d399;
-            --primary-glow: rgba(16, 185, 129, 0.5);
-            --bg: #05080f;
-            --card-bg: #0f1624;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.06);
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --bg: #05070a;
+            --card-bg: #111827;
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
             --text: #ffffff;
-            --text-dim: #94a3b8;
-            --accent: #3b82f6;
+            --text-dim: #9ca3af;
         }
 
         * {
@@ -29,23 +27,23 @@
         body {
             background-color: var(--bg);
             background-image: 
-                radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.12) 0, transparent 40%),
-                radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.12) 0, transparent 40%);
+                radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.08) 0, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.08) 0, transparent 40%);
             color: var(--text);
             font-family: 'Outfit', sans-serif;
             min-height: 100vh;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
+            padding-bottom: 90px; /* Space for bottom nav */
         }
 
+        /* Top Header */
         header {
             position: sticky;
             top: 0;
             z-index: 1000;
-            background: rgba(5, 8, 15, 0.7);
-            backdrop-filter: blur(24px);
+            background: rgba(5, 7, 10, 0.8);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
-            padding: 1rem 5%;
+            padding: 0.8rem 1.2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -53,103 +51,92 @@
 
         .logo {
             font-family: 'Montserrat', sans-serif;
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             text-transform: uppercase;
-            background: linear-gradient(135deg, #10b981, #3b82f6, #6366f1);
+            background: linear-gradient(135deg, #10b981, #3b82f6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 900;
+            letter-spacing: -0.5px;
         }
 
         .stats-badge {
             background: var(--glass);
-            padding: 0.5rem 1rem;
-            border-radius: 14px;
-            font-size: 0.8rem;
-            border: 1px solid var(--glass-border);
-            color: var(--primary-bright);
+            padding: 0.4rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--primary);
             font-weight: 700;
-        }
-
-        .hero {
-            padding: 4rem 5% 2rem;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: clamp(2.5rem, 10vw, 4rem);
-            font-weight: 900;
-            margin-bottom: 0.8rem;
-            letter-spacing: -2px;
-            line-height: 1;
-            background: linear-gradient(to bottom, #ffffff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero p {
-            color: var(--text-dim);
-            font-size: 1rem;
-            max-width: 500px;
-            margin: 0 auto 2.5rem;
-            font-weight: 300;
-        }
-
-        .tabs {
-            display: flex;
-            justify-content: center;
-            gap: 0.6rem;
-            margin-bottom: 3rem;
-            overflow-x: auto;
-            padding: 0.5rem;
-            scrollbar-width: none;
-        }
-
-        .tabs::-webkit-scrollbar { display: none; }
-
-        .tab-btn {
-            background: var(--glass);
             border: 1px solid var(--glass-border);
+        }
+
+        /* Floating Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.6rem;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             color: var(--text-dim);
-            padding: 0.8rem 1.6rem;
-            border-radius: 16px;
-            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.7rem;
             font-weight: 600;
+            padding: 0.5rem;
+            border-radius: 16px;
+            flex: 1;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .tab-btn.active {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 10px 20px var(--primary-glow);
-            border-color: transparent;
+        .nav-item.active {
+            color: var(--primary);
+            background: rgba(16, 185, 129, 0.1);
         }
 
+        .nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        /* Gallery Grid */
         .gallery-container {
-            padding: 0 5% 4rem;
+            padding: 1.2rem;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(2, 1fr); /* 2 Columns for Mobile */
+            gap: 1rem;
         }
 
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: 1fr; gap: 1.5rem; }
-            .hero { padding-top: 2rem; }
+        @media (min-width: 768px) {
+            .grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
         }
 
         .card {
             background: var(--card-bg);
-            border-radius: 24px;
+            border-radius: 20px;
             overflow: hidden;
             border: 1px solid var(--glass-border);
-            cursor: pointer;
-            transition: all 0.4s ease;
+            transition: transform 0.3s ease;
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(15px);
         }
 
         .card.visible {
@@ -157,17 +144,13 @@
             transform: translateY(0);
         }
 
-        .card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(16, 185, 129, 0.4);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-        }
+        .card:active { transform: scale(0.95); }
 
         .media-wrapper {
             aspect-ratio: 1/1;
-            overflow: hidden;
-            background: #090c15;
+            background: #090b11;
             position: relative;
+            overflow: hidden;
         }
 
         .media-wrapper img, .media-wrapper video {
@@ -177,24 +160,23 @@
         }
 
         .card-content {
-            padding: 1.5rem;
+            padding: 0.8rem;
         }
 
         .card-title {
+            font-size: 0.85rem;
             font-weight: 700;
-            font-size: 1rem;
-            margin-bottom: 0.3rem;
             color: white;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-bottom: 0.2rem;
         }
 
         .card-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
+            font-size: 0.65rem;
             color: var(--text-dim);
+            font-weight: 500;
         }
 
         /* Viewer */
@@ -202,71 +184,36 @@
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.98);
-            backdrop-filter: blur(20px);
+            background: #000;
             z-index: 2000;
             display: none;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0;
-        }
-
-        #viewer-media-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
         }
 
         #viewer-content {
             max-width: 100%;
             max-height: 100%;
-            box-shadow: 0 0 100px rgba(0,0,0,0.5);
         }
 
-        /* Custom Timeline */
         .video-timeline {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
+            bottom: 0; left: 0;
+            width: 100%; height: 4px;
             background: rgba(255,255,255,0.1);
         }
 
         .video-progress {
-            height: 100%;
-            width: 0;
+            height: 100%; width: 0;
             background: var(--primary);
-            transition: width 0.1s linear;
-        }
-
-        .close-viewer {
-            position: absolute;
-            top: 20px; right: 20px;
-            width: 44px; height: 44px;
-            background: rgba(255,255,255,0.1);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 2100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         #load-more-trigger {
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 2rem 0;
+            text-align: center;
             color: var(--primary);
             font-weight: 600;
+            font-size: 0.9rem;
             grid-column: 1/-1;
         }
     </style>
@@ -275,35 +222,37 @@
 
     <header>
         <div class="logo">NATURE VISION</div>
-        <div id="total-count" class="stats-badge">Loading...</div>
+        <div id="total-count" class="stats-badge">...</div>
     </header>
 
-    <div id="viewer">
-        <button class="close-viewer" onclick="closeViewer()">&times;</button>
-        <div id="viewer-media-container" onclick="closeViewer()">
-            <!-- Media Injected Here -->
-        </div>
+    <div id="viewer" onclick="closeViewer()">
+        <div id="viewer-media-container" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;"></div>
         <div class="video-timeline" id="timeline"><div class="video-progress" id="progress"></div></div>
     </div>
 
-    <section class="hero">
-        <h1>Visions of Nature</h1>
-        <p>Ultra-premium nature gallery. Click to play, click again to go back.</p>
-        
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="images" onclick="switchTab('images')">Images</button>
-            <button class="tab-btn" data-tab="videos" onclick="switchTab('videos')">Videos</button>
-            <button class="tab-btn" data-tab="all" onclick="switchTab('all')">All Library</button>
-            <button class="tab-btn" data-tab="logs" onclick="handleLogTab()">System Logs</button>
-        </div>
-    </section>
-
     <main class="gallery-container">
         <div id="gallery-grid" class="grid"></div>
-        <div id="load-more-trigger">
-            <div id="loading-spinner">✨ Exploring more nature...</div>
-        </div>
+        <div id="load-more-trigger">✨ Exploring nature...</div>
     </main>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" data-tab="images" onclick="switchTab('images')">
+            <span style="font-size:1.2rem">🖼️</span>
+            <span>Images</span>
+        </div>
+        <div class="nav-item" data-tab="videos" onclick="switchTab('videos')">
+            <span style="font-size:1.2rem">📽️</span>
+            <span>Videos</span>
+        </div>
+        <div class="nav-item" data-tab="all" onclick="switchTab('all')">
+            <span style="font-size:1.2rem">💎</span>
+            <span>All</span>
+        </div>
+        <div class="nav-item" data-tab="logs" onclick="handleLogTab()">
+            <span style="font-size:1.2rem">📜</span>
+            <span>Logs</span>
+        </div>
+    </nav>
 
     <script>
         let currentTab = 'images';
@@ -316,8 +265,8 @@
 
         function getOptimizedUrl(url, type) {
             if (!url || url === 'skipped_due_to_size') return url;
-            if (type === 'video') return url.replace('/upload/', '/upload/f_auto,q_auto,w_1000,c_limit/');
-            return url.replace('/upload/', '/upload/f_auto,q_auto,w_800,c_limit/');
+            if (type === 'video') return url.replace('/upload/', '/upload/f_auto,q_auto,w_800,c_limit/');
+            return url.replace('/upload/', '/upload/f_auto,q_auto,w_400,c_limit/');
         }
 
         async function fetchMore() {
@@ -328,27 +277,14 @@
                 const response = await fetch(`/api/media?limit=${LIMIT}&offset=${offset[currentTab]}`);
                 const data = await response.json();
                 
-                const newImages = data.images || [];
-                const newVideos = data.videos || [];
+                const newItems = currentTab === 'images' ? (data.images || []) : 
+                               (currentTab === 'videos' ? (data.videos || []) : 
+                               [...(data.images || []), ...(data.videos || [])]);
                 
-                if (currentTab === 'images') {
-                    mediaData.images.push(...newImages);
-                    if (newImages.length < LIMIT) hasMore.images = false;
-                    offset.images += LIMIT;
-                    renderNewItems(newImages, 'image');
-                } else if (currentTab === 'videos') {
-                    mediaData.videos.push(...newVideos);
-                    if (newVideos.length < LIMIT) hasMore.videos = false;
-                    offset.videos += LIMIT;
-                    renderNewItems(newVideos, 'video');
-                } else {
-                    const combined = [...newImages, ...newVideos];
-                    mediaData.all.push(...combined);
-                    if (combined.length === 0) hasMore.all = false;
-                    offset.all += LIMIT;
-                    renderNewItems(combined, 'mixed');
-                }
-                
+                if (newItems.length < LIMIT) hasMore[currentTab] = false;
+                mediaData[currentTab].push(...newItems);
+                offset[currentTab] += LIMIT;
+                renderNewItems(newItems);
                 updateStats();
             } catch (error) {
                 console.error("Fetch error:", error);
@@ -372,7 +308,7 @@
                     mediaHtml = `<img src="${optimizedUrl}" loading="lazy">`;
                 } else {
                     if (item.cloudinaryUrl === 'skipped_due_to_size') {
-                        mediaHtml = `<div style="height:100%; display:flex; align-items:center; justify-content:center; background:#161d2f; color:var(--primary); font-weight:800;">📽️ TELEGRAM</div>`;
+                        mediaHtml = `<div style="height:100%; display:flex; align-items:center; justify-content:center; background:#161d2f; color:var(--primary); font-weight:800; font-size:0.6rem;">📽️ TG</div>`;
                     } else {
                         mediaHtml = `<video muted loop playsinline preload="auto"><source src="${optimizedUrl}#t=0.5" type="video/mp4"></video>`;
                     }
@@ -381,10 +317,9 @@
                 card.innerHTML = `
                     <div class="media-wrapper">${mediaHtml}</div>
                     <div class="card-content">
-                        <div class="card-title">${item.title || 'Nature Clip'}</div>
+                        <div class="card-title">${item.title || 'Discovery'}</div>
                         <div class="card-meta">
-                            <span>${new Date(item.uploadedAt).toLocaleDateString()}</span>
-                            <span style="color:var(--primary)">PLAY</span>
+                            <span>${new Date(item.uploadedAt).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</span>
                         </div>
                     </div>
                 `;
@@ -394,10 +329,16 @@
         }
 
         function switchTab(tab) {
-            if (currentTab === tab) return;
+            if (currentTab === tab && tab !== 'logs') return;
             currentTab = tab;
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.tab === tab));
             document.getElementById('gallery-grid').innerHTML = '';
+            
+            if (tab === 'logs') {
+                updateLogs();
+                return;
+            }
+
             if (mediaData[tab].length === 0) {
                 offset[tab] = 0;
                 hasMore[tab] = true;
@@ -418,63 +359,56 @@
             } else { switchTab('logs'); }
         }
 
+        async function updateLogs() {
+            const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = '<div id="log-container" style="grid-column: 1/-1; background: #000; padding: 1.5rem; border-radius: 20px; font-family: monospace; font-size: 0.8rem; max-height: 500px; overflow-y: auto; color: #10b981; border: 1px solid var(--glass-border);">Loading...</div>';
+            const res = await fetch('/api/logs');
+            const logs = await res.json();
+            document.getElementById('log-container').innerHTML = logs.map(l => `<div style="margin-bottom:0.4rem;"><span style="color:#64748b;">[${l.time}]</span> ${l.message}</div>`).join('');
+        }
+
         function openViewer(item) {
             const viewer = document.getElementById('viewer');
             const container = document.getElementById('viewer-media-container');
             const isVideo = item.cloudinaryUrl.includes('.mp4') || item.type === 'videos';
-            const timeline = document.getElementById('timeline');
-            
             container.innerHTML = '';
-            timeline.style.display = isVideo ? 'block' : 'none';
+            document.getElementById('timeline').style.display = isVideo ? 'block' : 'none';
 
-            if (item.cloudinaryUrl === 'skipped_due_to_size') {
-                container.innerHTML = `<div style="color:white; text-align:center;"><h2>Telegram Large File</h2></div>`;
-            } else if (isVideo) {
+            if (isVideo && item.cloudinaryUrl !== 'skipped_due_to_size') {
                 const video = document.createElement('video');
                 video.id = 'viewer-content';
                 video.src = item.cloudinaryUrl;
-                video.autoplay = true;
-                video.loop = true;
-                video.playsInline = true;
-                video.preload = 'auto';
-                
+                video.autoplay = true; video.loop = true; video.playsInline = true;
                 video.ontimeupdate = () => {
-                    const progress = (video.currentTime / video.duration) * 100;
-                    document.getElementById('progress').style.width = progress + '%';
+                    const prog = (video.currentTime / video.duration) * 100;
+                    document.getElementById('progress').style.width = prog + '%';
                 };
-
                 container.appendChild(video);
+            } else if (item.cloudinaryUrl === 'skipped_due_to_size') {
+                container.innerHTML = `<div style="color:white; text-align:center;"><h2>Telegram File</h2></div>`;
             } else {
                 const img = document.createElement('img');
                 img.id = 'viewer-content';
                 img.src = item.cloudinaryUrl;
                 container.appendChild(img);
             }
-            
             viewer.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
 
         function closeViewer() {
-            const viewer = document.getElementById('viewer');
-            const container = document.getElementById('viewer-media-container');
-            const video = document.getElementById('viewer-content');
-            if (video && video.tagName === 'VIDEO') video.pause();
-            
-            viewer.style.display = 'none';
-            container.innerHTML = '';
+            document.getElementById('viewer').style.display = 'none';
+            document.getElementById('viewer-media-container').innerHTML = '';
             document.body.style.overflow = 'auto';
-            document.getElementById('progress').style.width = '0%';
         }
 
         function updateStats() {
-            document.getElementById('total-count').innerText = `${mediaData.images.length + mediaData.videos.length} Discoveries`;
+            const total = mediaData.images.length + mediaData.videos.length;
+            document.getElementById('total-count').innerText = `${total} Items`;
         }
 
         window.onscroll = () => {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
-                fetchMore();
-            }
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) fetchMore();
         };
 
         fetchMore();
