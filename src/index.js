@@ -22,14 +22,54 @@ app.use(express.static(path.join(__dirname, '../')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '../dashboard.html')));
 app.get('/health', (req, res) => res.send('OK'));
 
-// API to fetch media from MongoDB for the dashboard
+// API to fetch media (Hybrid: Live Cloudinary + Stored Telegram Files)
 app.get('/api/media', async (req, res) => {
     try {
+        const cloudinary = require('cloudinary').v2;
+        cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET
+        });
+
+        // 1. Fetch live from Cloudinary
+        const [imgRes, vidRes] = await Promise.all([
+            cloudinary.api.resources({ resource_type: 'image', max_results: 500, context: true, tags: true }),
+            cloudinary.api.resources({ resource_type: 'video', max_results: 500, context: true, tags: true })
+        ]);
+
+        // 2. Fetch skipped videos from MongoDB
         const { Media } = require('./config/db');
-        const images = await Media.find({ type: 'images' }).sort({ uploadedAt: -1 });
-        const videos = await Media.find({ type: 'videos' }).sort({ uploadedAt: -1 });
+        const skippedMedia = await Media.find({ cloudinaryUrl: 'skipped_due_to_size' });
+
+        // Map Cloudinary resources
+        const cloudImages = imgRes.resources.map(r => ({
+            pixabayId: r.context?.custom?.pixabay_id || r.public_id.split('/').pop(),
+            title: r.context?.custom?.caption || r.public_id.split('/').pop(),
+            cloudinaryUrl: r.secure_url,
+            cloudinaryWidth: r.width,
+            cloudinaryHeight: r.height,
+            uploadedAt: r.created_at,
+            tags: r.tags || []
+        }));
+
+        const cloudVideos = vidRes.resources.map(r => ({
+            pixabayId: r.context?.custom?.pixabay_id || r.public_id.split('/').pop(),
+            title: r.context?.custom?.caption || r.public_id.split('/').pop(),
+            cloudinaryUrl: r.secure_url,
+            uploadedAt: r.created_at,
+            tags: r.tags || []
+        }));
+
+        // Combine with skipped items
+        const images = cloudImages;
+        const videos = [...cloudVideos, ...skippedMedia].sort((a, b) => 
+            new Date(b.uploadedAt || b.created_at) - new Date(a.uploadedAt || a.created_at)
+        );
+
         res.json({ images, videos });
     } catch (err) {
+        console.error("Hybrid Fetch Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
