@@ -15,27 +15,33 @@ let client = null;
  * Initialize the Telegram client (Singleton)
  */
 async function initTelegram() {
-    if (client && client.connected) return client;
+    if (client) {
+        if (!client.connected) {
+            logger.info('Telegram: Reconnecting existing client...');
+            await client.connect();
+        }
+        return client;
+    }
 
     const { apiId, apiHash, stringSession } = APP_CONFIG.telegram;
 
-    if (!apiId || !apiHash) {
-        throw new Error('Missing Telegram API_ID or API_HASH in .env');
-    }
-
     const session = new StringSession(stringSession || '');
     client = new TelegramClient(session, apiId, apiHash, {
-        connectionRetries: 15,
+        connectionRetries: 20,
         useWSS: true,
         autoReconnect: true,
+        floodSleepThreshold: 60,
     });
 
     try {
         await client.connect();
-        logger.info('Telegram: Connected and Authenticated');
+        logger.info('Telegram: New Connection Established');
     } catch (err) {
-        logger.error('Telegram: Connection failed', err);
-        client = null;
+        logger.error(`Telegram: Connection failed: ${err.message}`);
+        // If it's a duplicated key, we might need to wait or check for other instances
+        if (err.message.includes('406')) {
+            logger.warn('ALERT: Multiple bot instances detected! Close other terminals.');
+        }
         throw err;
     }
     

@@ -107,14 +107,14 @@ logger.error = (msg, ...args) => { addActivityLog(msg, 'error'); originalError(m
 async function main() {
     logger.section('🌿 NATURE MEDIA UPLOADER — STARTING');
     
-    // 1. Setup
-    await ensureDirectories(APP_CONFIG.paths);
-    await connectDB();
-
-    // Start Express server for Render health checks and Gallery
+    // Start Express server IMMEDIATELY for Render
     app.listen(PORT, () => {
         logger.success(`Server is running on port ${PORT}`);
     });
+
+    // 1. Setup
+    await ensureDirectories(APP_CONFIG.paths);
+    await connectDB();
 
     // Start the automation loop
     runAutomationLoop();
