@@ -111,14 +111,9 @@ async function main() {
     await ensureDirectories(APP_CONFIG.paths);
     await connectDB();
 
-    // Auto-Sync Cloudinary on start
-    const { syncCloudinary } = require('./scripts/syncCloudinary');
-    await syncCloudinary();
-
     // Start Express server for Render health checks and Gallery
     app.listen(PORT, () => {
         logger.success(`Server is running on port ${PORT}`);
-        logger.info(`Gallery available at: http://localhost:${PORT}`);
     });
 
     // Start the automation loop
