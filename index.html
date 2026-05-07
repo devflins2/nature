@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NATURE.VISION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Nature Media Gallery | Premium Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #000;
-            --accent: #10b981;
-            --text: #fff;
-            --dim: rgba(255,255,255,0.4);
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --glass: rgba(255, 255, 255, 0.05);
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
         }
 
         * {
@@ -21,324 +24,430 @@
 
         body {
             background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.1) 0, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.1) 0, transparent 50%);
             color: var(--text);
             font-family: 'Inter', sans-serif;
-            overflow-y: scroll;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
+        /* Glassmorphism Header */
         header {
-            position: fixed;
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            padding: 1.5rem 2rem;
-            z-index: 1000;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
-        }
-
-        .top-row {
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass);
+            padding: 1.5rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
         }
 
         .logo {
-            font-weight: 700;
-            letter-spacing: 2px;
-            font-size: 0.8rem;
-            opacity: 0.6;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .nav-main {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .nav-link {
-            text-decoration: none;
-            color: var(--dim);
-            font-size: 0.8rem;
+        .stats-badge {
+            background: var(--glass);
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-size: 0.875rem;
+            border: 1px solid var(--glass);
+            color: var(--primary);
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: color 0.3s;
         }
 
-        .nav-link.active {
-            color: #fff;
-        }
-
-        .filter-row {
-            display: flex;
-            gap: 1rem;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
-            scrollbar-width: none;
-        }
-        .filter-row::-webkit-scrollbar { display: none; }
-
-        .filter-btn {
-            white-space: nowrap;
-            font-size: 0.7rem;
-            color: var(--dim);
-            background: rgba(255,255,255,0.05);
-            padding: 0.4rem 1rem;
-            border-radius: 100px;
-            cursor: pointer;
-            border: 1px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .filter-btn.active {
-            color: #fff;
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.2);
-        }
-
-        /* Gallery Grid */
-        .gallery-wrap {
-            padding: 8rem 1rem 2rem;
-        }
-
-        .masonry {
-            column-count: 4;
-            column-gap: 1rem;
-        }
-
-        @media (max-width: 1200px) { .masonry { column-count: 3; } }
-        @media (max-width: 800px) { .masonry { column-count: 2; } }
-        @media (max-width: 500px) { .masonry { column-count: 1; } }
-
-        .item {
-            break-inside: avoid;
-            margin-bottom: 1rem;
-            border-radius: 6px;
-            overflow: hidden;
-            background: #0a0a0a;
-            cursor: zoom-in;
-            position: relative;
-        }
-
-        .item img, .item video {
-            width: 100%;
-            display: block;
-            transition: transform 0.5s ease;
-        }
-
-        .item:hover img, .item:hover video {
-            transform: scale(1.05);
-        }
-
-        /* Label on Image */
-        .item-label {
-            position: absolute;
-            bottom: 1rem;
-            left: 1rem;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(8px);
-            padding: 0.3rem 0.8rem;
-            border-radius: 6px;
-            font-size: 0.6rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.1);
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        /* Lightbox */
-        #lightbox {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.98);
-            z-index: 2000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            cursor: zoom-out;
-        }
-
-        #lightbox.active { display: flex; }
-
-        .lb-content {
-            max-width: 100%;
-            max-height: 100%;
+        /* Hero Section */
+        .hero {
+            padding: 4rem 5% 2rem;
             text-align: center;
         }
 
-        .lb-content img, .lb-content video {
-            max-width: 90vw;
-            max-height: 85vh;
-            border-radius: 4px;
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(to bottom, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .lb-info {
+        .hero p {
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .tab-btn {
+            background: var(--glass);
+            border: 1px solid var(--glass);
+            color: var(--text-dim);
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 20px var(--primary-glow);
+            border-color: transparent;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* Gallery Grid */
+        .gallery-container {
+            padding: 0 5% 5rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--glass);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .media-wrapper {
+            width: 100%;
+            height: 240px;
+            overflow: hidden;
+            background: #1e293b;
+            position: relative;
+        }
+
+        .media-wrapper img, .media-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .card:hover .media-wrapper img, .card:hover .media-wrapper video {
+            transform: scale(1.1);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
             margin-top: 1rem;
-            font-size: 0.8rem;
-            color: var(--dim);
         }
 
-        /* Stats */
-        .stats {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 2rem;
-            font-size: 0.6rem;
-            color: rgba(255,255,255,0.2);
+        .tag {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
+        }
+
+        .action-btn {
+            display: inline-block;
+            margin-top: 1.5rem;
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--glass);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: background 0.3s;
+            border: 1px solid var(--glass);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Video Play Icon Overlay */
+        .video-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            border: 2px solid white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 10rem 0;
+            color: var(--text-dim);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* Error Message */
+        #error-notice {
+            display: none;
+            background: #ef4444;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
+    <div id="error-notice">
+        ⚠️ CORS Error: JSON files must be served via a local server. Try running 'npx serve' in this folder.
+    </div>
+
     <header>
-        <div class="top-row">
-            <div class="logo">NATURE.VISION</div>
-            <div class="nav-main">
-                <span class="nav-link active" onclick="switchTab('images')">Images</span>
-                <span class="nav-link" onclick="switchTab('videos')">Videos</span>
-                <span class="nav-link" onclick="switchTab('errors')">Logs</span>
-            </div>
-        </div>
-        <div class="filter-row" id="filters">
-            <span class="filter-btn active" onclick="setFilter('all')">All</span>
-            <span class="filter-btn" onclick="setFilter('nature')">Nature</span>
-            <span class="filter-btn" onclick="setFilter('forest')">Forest</span>
-            <span class="filter-btn" onclick="setFilter('mountain')">Mountains</span>
-            <span class="filter-btn" onclick="setFilter('river')">River</span>
-            <span class="filter-btn" onclick="setFilter('ocean')">Ocean</span>
-            <span class="filter-btn" onclick="setFilter('sea')">Sea</span>
-            <span class="filter-btn" onclick="setFilter('sunset')">Sunset</span>
-            <span class="filter-btn" onclick="setFilter('rain')">Rain</span>
-        </div>
+        <div class="logo">NATURE.VISION</div>
+        <div id="total-count" class="stats-badge">Loading media...</div>
     </header>
 
-    <div class="gallery-wrap">
-        <div id="grid" class="masonry"></div>
-    </div>
+    <section class="hero">
+        <h1>Nature Media Gallery</h1>
+        <p>A premium visualization of your automatically scraped and uploaded nature content from Pixabay.</p>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="images" onclick="switchTab('images')">Images</button>
+            <button class="tab-btn" data-tab="videos" onclick="switchTab('videos')">Videos</button>
+            <button class="tab-btn" data-tab="all" onclick="switchTab('all')">All Media</button>
+            <button class="tab-btn" data-tab="logs" onclick="switchTab('logs')">Logs</button>
+        </div>
+    </section>
 
-    <div id="lightbox" onclick="this.classList.remove('active')">
-        <div class="lb-content"></div>
-    </div>
-
-    <div class="stats" id="stats">0 ITEMS</div>
+    <main class="gallery-container">
+        <div id="gallery-grid" class="grid">
+            <!-- Content will be injected here -->
+        </div>
+    </main>
 
     <script>
-        let tab = 'images';
-        let currentFilter = 'all';
-        let store = { images: [], videos: [], errors: [] };
-        const categories = ['forest', 'mountain', 'river', 'ocean', 'sea', 'sunset', 'rain', 'waterfall', 'beach', 'desert', 'snow', 'nature', 'landscape'];
+        let currentTab = 'images';
+        let mediaData = {
+            images: [],
+            videos: [],
+            all: []
+        };
 
-        async function sync() {
-            const ts = Date.now();
+        async function loadData() {
             try {
-                const [r1, r2, r3] = await Promise.all([
-                    fetch(`./metadata/images_metadata.json?v=${ts}`).catch(() => ({ok:false})),
-                    fetch(`./metadata/videos_metadata.json?v=${ts}`).catch(() => ({ok:false})),
-                    fetch(`./metadata/failed_uploads.json?v=${ts}`).catch(() => ({ok:false}))
-                ]);
-                if (r1.ok) store.images = await r1.json();
-                if (r2.ok) store.videos = await r2.json();
-                if (r3.ok) store.errors = await r3.json();
-                render();
-            } catch(e) {}
+                const response = await fetch('/api/media');
+                if (!response.ok) throw new Error('Failed to fetch from API');
+                
+                const data = await response.json();
+                mediaData.images = data.images || [];
+                mediaData.videos = data.videos || [];
+                mediaData.all = [...mediaData.images, ...mediaData.videos].sort((a, b) => 
+                    new Date(b.uploadedAt) - new Date(a.uploadedAt)
+                );
+                
+                renderGallery();
+                updateStats();
+            } catch (error) {
+                console.error("Error loading media:", error);
+            }
         }
 
-        function getBestLabel(item) {
-            const searchStr = (item.title + ' ' + (item.tags || []).join(' ')).toLowerCase();
-            for (const cat of categories) {
-                if (searchStr.includes(cat)) return cat;
+        async function updateLogs() {
+            try {
+                if (currentTab !== 'logs') return;
+                
+                const response = await fetch('/api/logs');
+                const logs = await response.json();
+                
+                const grid = document.getElementById('gallery-grid');
+                grid.innerHTML = '<div style="grid-column: 1/-1; background: rgba(15, 23, 42, 0.6); padding: 2rem; border-radius: 1rem; font-family: monospace; font-size: 0.9rem; border: 1px solid var(--glass); max-height: 600px; overflow-y: auto;"></div>';
+                const container = grid.firstChild;
+                
+                if (logs.length === 0) {
+                    container.innerHTML = '<div style="color:var(--text-dim)">Waiting for bot activity...</div>';
+                } else {
+                    logs.forEach(log => {
+                        const color = log.type === 'error' ? '#ef4444' : (log.type === 'success' ? '#10b981' : (log.type === 'warn' ? '#f59e0b' : '#38bdf8'));
+                        container.innerHTML += `
+                            <div style="margin-bottom: 0.5rem; display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.3rem;">
+                                <span style="color: var(--text-dim); margin-right: 1rem; min-width: 85px;">[${log.time}]</span>
+                                <span style="color: ${color};">${log.message}</span>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to fetch logs", err);
             }
-            return 'nature';
         }
 
-        function render() {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-            
-            let list = store[tab];
-            if (!list || list.length === 0) return;
-
-            if (currentFilter !== 'all') {
-                list = list.filter(item => {
-                    const searchStr = (item.title + ' ' + (item.tags || []).join(' ')).toLowerCase();
-                    return searchStr.includes(currentFilter);
-                });
-            }
-
-            document.getElementById('stats').innerText = `${list.length} ${tab.toUpperCase()}`;
-
-            if (tab === 'errors') {
-                list.reverse().forEach(err => {
-                    const el = document.createElement('div');
-                    el.className = 'item';
-                    el.style.padding = '1.5rem';
-                    el.style.fontSize = '0.7rem';
-                    el.style.color = '#ef4444';
-                    el.innerHTML = `LOG: ${err.errorMessage}<br><br><span style="color:rgba(255,255,255,0.2)">ID: ${err.pixabayId}</span>`;
-                    grid.appendChild(el);
-                });
+        function renderGallery() {
+            if (currentTab === 'logs') {
+                updateLogs();
                 return;
             }
 
-            [...list].reverse().forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'item';
-                el.onclick = (e) => { e.stopPropagation(); openLB(item); };
+            const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = '';
+            
+            const items = mediaData[currentTab];
+            
+            if (!items || items.length === 0) {
+                showEmptyState(`No ${currentTab} found yet. The bot is working...`);
+                return;
+            }
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
                 
-                const label = getBestLabel(item);
+                const tags = item.tags ? item.tags.slice(0, 3) : [];
+                const tagHtml = tags.map(t => `<span class="tag">${t}</span>`).join('');
                 
-                let mediaHtml = '';
-                if (tab === 'images') {
-                    mediaHtml = `<img src="${item.cloudinaryUrl}" loading="lazy">`;
+                const isSkipped = item.cloudinaryUrl === 'skipped_due_to_size';
+                
+                let mediaHtml;
+                if (currentTab === 'images') {
+                    mediaHtml = `<img src="${item.cloudinaryUrl}" alt="${item.title}" loading="lazy">`;
                 } else {
-                    mediaHtml = `<video muted loop playsinline><source src="${item.cloudinaryUrl}" type="video/mp4"></video>`;
-                    el.onmouseenter = () => el.querySelector('video').play();
-                    el.onmouseleave = () => { const v = el.querySelector('video'); v.pause(); v.currentTime = 0; };
+                    if (isSkipped) {
+                        mediaHtml = `
+                            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; background:#1e293b; text-align:center; padding:1rem;">
+                                <div style="font-size:3rem; margin-bottom:1rem;">📽️</div>
+                                <div style="color:var(--primary); font-weight:bold;">Video on Telegram</div>
+                                <div style="font-size:0.7rem; color:var(--text-dim);">Size > 100MB</div>
+                            </div>
+                        `;
+                    } else {
+                        mediaHtml = `
+                            <video muted onmouseover="this.play()" onmouseout="this.pause(); this.currentTime=0;" style="width:100%; height:100%; object-fit:cover;">
+                                <source src="${item.cloudinaryUrl}" type="video/mp4">
+                            </video>
+                            <div class="video-overlay">▶</div>
+                        `;
+                    }
                 }
 
-                el.innerHTML = `
-                    ${mediaHtml}
-                    <div class="item-label">${label}</div>
+                card.innerHTML = `
+                    <div class="media-wrapper">
+                        ${mediaHtml}
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title">${item.title || 'Nature Media'} ${isSkipped ? '☁️' : ''}</div>
+                        <div class="card-meta">
+                            <span>${item.cloudinaryWidth || 'HD'}x${item.cloudinaryHeight || ''}</span>
+                            <span>${new Date(item.uploadedAt).toLocaleDateString()}</span>
+                        </div>
+                        <div class="tag-list">
+                            ${tagHtml}
+                        </div>
+                        <a href="${isSkipped ? item.pixabayUrl : item.cloudinaryUrl}" target="_blank" class="action-btn">
+                            ${isSkipped ? 'View on Pixabay' : 'View Original'}
+                        </a>
+                    </div>
                 `;
-                grid.appendChild(el);
+                grid.appendChild(card);
             });
         }
 
-        function setFilter(f) {
-            currentFilter = f;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.innerText.toLowerCase() === f);
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
             });
-            render();
+            renderGallery();
         }
 
-        function openLB(item) {
-            const lb = document.getElementById('lightbox');
-            const content = lb.querySelector('.lb-content');
-            content.innerHTML = (tab === 'images'
-                ? `<img src="${item.cloudinaryUrl}">`
-                : `<video controls autoplay loop><source src="${item.cloudinaryUrl}" type="video/mp4"></video>`) +
-                `<div class="lb-info">${item.title}</div>`;
-            lb.classList.add('active');
+        function updateStats() {
+            const total = mediaData.images.length + mediaData.videos.length;
+            document.getElementById('total-count').innerText = `${total} Items Collected`;
         }
 
-        function switchTab(t) {
-            tab = t;
-            document.querySelectorAll('.nav-link').forEach(l => {
-                l.classList.toggle('active', l.innerText.toLowerCase() === t);
-            });
-            render();
+        function showEmptyState(msg) {
+            const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <i>🍃</i>
+                    <p>${msg}</p>
+                </div>
+            `;
         }
 
-        sync();
-        setInterval(sync, 20000);
+        // Initialize & Auto-refresh
+        loadData();
+        setInterval(loadData, 15000); // Refresh every 15s
     </script>
 </body>
 </html>
