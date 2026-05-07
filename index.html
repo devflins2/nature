@@ -5,17 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Nature Vision | Luxury Media Portfolio</title>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/photoswipe@5.4.3/dist/photoswipe.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #10b981;
+            --primary-rgb: 16, 185, 129;
             --primary-glow: rgba(16, 185, 129, 0.4);
-            --bg: #05070a;
-            --card-bg: #111827;
-            --glass: rgba(255, 255, 255, 0.04);
+            --bg: #030406;
+            --card-bg: #0d1117;
+            --glass: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.08);
             --text: #ffffff;
             --text-dim: #9ca3af;
+            --accent: #3b82f6;
         }
 
         * {
@@ -28,22 +31,36 @@
         body {
             background-color: var(--bg);
             background-image: 
-                radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.08) 0, transparent 40%),
-                radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.08) 0, transparent 40%);
+                radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.1) 0, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.1) 0, transparent 40%);
             color: var(--text);
             font-family: 'Outfit', sans-serif;
             min-height: 100vh;
-            padding-bottom: 90px;
+            padding-bottom: 100px;
+            overflow-x: hidden;
+        }
+
+        /* Scroll Progress Bar */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            z-index: 2001;
+            transition: width 0.1s ease;
         }
 
         header {
             position: sticky;
             top: 0;
             z-index: 1000;
-            background: rgba(5, 7, 10, 0.8);
-            backdrop-filter: blur(20px);
+            background: rgba(3, 4, 6, 0.7);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
-            padding: 1rem 1.5rem;
+            padding: 1.2rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -137,13 +154,26 @@
             border-radius: 24px;
             overflow: hidden;
             border: 1px solid var(--glass-border);
-            transition: all 0.4s ease;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px) scale(0.95);
+            cursor: pointer;
         }
 
-        .card.visible { opacity: 1; transform: translateY(0); }
-        .card:active { transform: scale(0.96); }
+        .card.visible { opacity: 1; transform: translateY(0) scale(1); }
+        .card:hover { border-color: rgba(var(--primary-rgb), 0.3); transform: translateY(-5px); }
+        .card:active { transform: scale(0.98); }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, var(--glass) 25%, rgba(255,255,255,0.08) 50%, var(--glass) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
 
         .media-wrapper {
             aspect-ratio: 1/1;
@@ -181,47 +211,12 @@
             gap: 4px;
         }
 
-        #viewer {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #000;
-            z-index: 2000;
-            display: none;
-            align-items: center;
-            justify-content: center;
+        /* Custom PhotoSwipe Styles */
+        .pswp {
+            --pswp-bg: rgba(0, 0, 0, 0.95);
         }
-
-        #viewer-content {
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        .video-timeline {
-            position: absolute;
-            bottom: 0; left: 0;
-            width: 100%; height: 4px;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .video-progress {
-            height: 100%; width: 0;
-            background: var(--primary);
-        }
-
-        .close-viewer {
-            position: absolute;
-            top: 25px; right: 25px;
-            width: 48px; height: 48px;
-            background: rgba(255,255,255,0.1);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            z-index: 2100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+        .pswp__img {
+            border-radius: 12px;
         }
 
         #load-more-trigger {
@@ -325,6 +320,8 @@
 </head>
 <body>
 
+    <div class="scroll-progress" id="scroll-bar"></div>
+
     <header>
         <div class="logo">NATURE VISION</div>
         <div id="total-count" class="stats-badge">
@@ -332,12 +329,6 @@
             <span id="count-text">...</span>
         </div>
     </header>
-
-    <div id="viewer">
-        <button class="close-viewer" onclick="closeViewer()"><i data-lucide="x"></i></button>
-        <div id="viewer-media-container" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;" onclick="closeViewer()"></div>
-        <div class="video-timeline" id="timeline"><div class="video-progress" id="progress"></div></div>
-    </div>
 
     <main class="gallery-container">
         <div id="gallery-grid" class="grid"></div>
@@ -375,6 +366,28 @@
         let authenticated = false;
         const LIMIT = 40;
 
+        // Intersection Observer for animations and video autoplay
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    const video = entry.target.querySelector('video');
+                    if (video && !video.src.includes('skipped')) video.play().catch(() => {});
+                } else {
+                    const video = entry.target.querySelector('video');
+                    if (video) video.pause();
+                }
+            });
+        }, { threshold: 0.2 });
+
+        // Scroll progress bar
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById("scroll-bar").style.width = scrolled + "%";
+        });
+
         // Initialize Lucide Icons
         lucide.createIcons();
 
@@ -388,13 +401,26 @@
             if (isLoading || !hasMore[currentTab]) return;
             isLoading = true;
             
+            const grid = document.getElementById('gallery-grid');
+            const skeletons = [];
+            for(let i=0; i<8; i++) {
+                const skel = document.createElement('div');
+                skel.className = 'card skeleton';
+                skel.style.aspectRatio = '1/1.2';
+                grid.appendChild(skel);
+                skeletons.push(skel);
+                setTimeout(() => skel.classList.add('visible'), 50);
+            }
+
             try {
                 const response = await fetch(`/api/media?limit=${LIMIT}&offset=${offset[currentTab]}`);
                 const data = await response.json();
                 
+                skeletons.forEach(s => s.remove());
+
                 const newItems = currentTab === 'images' ? (data.images || []) : 
-                               (currentTab === 'videos' ? (data.videos || []) : 
-                               [...(data.images || []), ...(data.videos || [])]);
+                                (currentTab === 'videos' ? (data.videos || []) : 
+                                [...(data.images || []), ...(data.videos || [])]);
                 
                 if (newItems.length < LIMIT) hasMore[currentTab] = false;
                 mediaData[currentTab].push(...newItems);
@@ -402,6 +428,7 @@
                 renderNewItems(newItems);
                 updateStats();
             } catch (error) {
+                skeletons.forEach(s => s.remove());
                 console.error("Fetch error:", error);
             } finally {
                 isLoading = false;
@@ -413,7 +440,6 @@
             items.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.onclick = () => openViewer(item);
                 
                 const isVideo = item.cloudinaryUrl.includes('.mp4') || item.type === 'videos';
                 const optimizedUrl = getOptimizedUrl(item.cloudinaryUrl, isVideo ? 'video' : 'image');
@@ -443,8 +469,8 @@
                     </div>
                 `;
                 grid.appendChild(card);
+                revealObserver.observe(card);
                 lucide.createIcons({attrs:{'stroke-width':3}});
-                setTimeout(() => card.classList.add('visible'), 50);
             });
         }
 
@@ -538,46 +564,6 @@
             document.getElementById('log-container').innerHTML = logs.map(l => `<div style="margin-bottom:0.6rem;"><span style="color:#64748b;">[${l.time}]</span> ${l.message}</div>`).join('');
         }
 
-        function openViewer(item) {
-            const viewer = document.getElementById('viewer');
-            const container = document.getElementById('viewer-media-container');
-            const isVideo = item.cloudinaryUrl.includes('.mp4') || item.type === 'videos';
-            container.innerHTML = '';
-            document.getElementById('timeline').style.display = isVideo ? 'block' : 'none';
-
-            if (isVideo && item.cloudinaryUrl !== 'skipped_due_to_size') {
-                const video = document.createElement('video');
-                video.id = 'viewer-content';
-                video.src = item.cloudinaryUrl;
-                video.autoplay = true; video.loop = true; video.playsInline = true;
-                video.ontimeupdate = () => {
-                    const prog = (video.currentTime / video.duration) * 100;
-                    document.getElementById('progress').style.width = prog + '%';
-                };
-                container.appendChild(video);
-            } else if (item.cloudinaryUrl === 'skipped_due_to_size') {
-                container.innerHTML = `<div style="color:white; text-align:center;">
-                    <i data-lucide="send" style="width:50px;height:50px;margin-bottom:15px;color:var(--primary)"></i>
-                    <h2>Stored on Telegram</h2>
-                    <p style="color:var(--text-dim);font-size:0.9rem;margin-top:10px;">This file is too large for web preview.</p>
-                </div>`;
-                lucide.createIcons();
-            } else {
-                const img = document.createElement('img');
-                img.id = 'viewer-content';
-                img.src = item.cloudinaryUrl;
-                container.appendChild(img);
-            }
-            viewer.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeViewer() {
-            document.getElementById('viewer').style.display = 'none';
-            document.getElementById('viewer-media-container').innerHTML = '';
-            document.body.style.overflow = 'auto';
-        }
-
         function updateStats() {
             const total = mediaData.images.length + mediaData.videos.length;
             document.getElementById('count-text').innerText = `${total} Items`;
@@ -588,6 +574,42 @@
         };
 
         fetchMore();
+    </script>
+
+    <script type="module">
+        import PhotoSwipeLightbox from 'https://unpkg.com/photoswipe@5.4.3/dist/photoswipe-lightbox.esm.js';
+        
+        const lightbox = new PhotoSwipeLightbox({
+            gallery: '#gallery-grid',
+            children: '.card',
+            pswpModule: () => import('https://unpkg.com/photoswipe@5.4.3/dist/photoswipe.esm.js')
+        });
+
+        lightbox.addFilter('itemData', (itemData, index) => {
+            const card = itemData.element;
+            if (!card || card.classList.contains('skeleton')) return null;
+
+            const img = card.querySelector('img');
+            const video = card.querySelector('video');
+            
+            if (img) {
+                itemData.src = img.src.replace('/upload/f_auto,q_auto,w_400,c_limit/', '/upload/');
+                itemData.w = 1920;
+                itemData.h = 1080;
+            } else if (video) {
+                const source = video.querySelector('source');
+                if (source) {
+                    itemData.html = `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#000;">
+                        <video controls autoplay loop playsinline style="max-width:100%; max-height:100%;">
+                            <source src="${source.src.replace('#t=0.5', '').replace('/upload/f_auto,q_auto,w_800,c_limit/', '/upload/')}" type="video/mp4">
+                        </video>
+                    </div>`;
+                }
+            }
+            return itemData;
+        });
+
+        lightbox.init();
     </script>
 </body>
 </html>
