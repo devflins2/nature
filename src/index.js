@@ -26,23 +26,55 @@ app.get('/health', (req, res) => res.send('OK'));
 app.get('/api/media', async (req, res) => {
     try {
         const { Media } = require('./config/db');
+        const cloudinary = require('cloudinary').v2;
         
-        // 1. Get everything from our Database (Fast & Reliable)
-        const dbImages = await Media.find({ type: 'images' }).sort({ uploadedAt: -1 });
-        const dbVideos = await Media.find({ type: 'videos' }).sort({ uploadedAt: -1 });
+        // 1. Get everything from our Database
+        const dbMedia = await Media.find({}).sort({ uploadedAt: -1 });
 
-        // 2. Try to get LIVE updates from Cloudinary (Non-blocking fallback)
-        // For now, we rely on the 800+ items already in DB as seen in logs
-        
-        console.log(`[API] Serving ${dbImages.length} images and ${dbVideos.length} videos from DB`);
+        // 2. Try to get LIVE updates from Cloudinary (Merge)
+        let cloudItems = [];
+        try {
+            if (process.env.CLOUDINARY_URL) {
+                cloudinary.config(true);
+                const cloudRes = await cloudinary.api.resources({ 
+                    type: 'upload', 
+                    max_results: 500,
+                    context: true 
+                });
+                cloudItems = cloudRes.resources.map(r => ({
+                    title: r.context?.custom?.caption || r.public_id.split('/').pop(),
+                    cloudinaryUrl: r.secure_url,
+                    type: r.resource_type === 'image' ? 'images' : 'videos',
+                    uploadedAt: r.created_at,
+                    cloudinaryFormat: r.format
+                }));
+            }
+        } catch (cErr) {
+            console.log("[API] Cloudinary live fetch skipped or failed.");
+        }
+
+        // Merge and remove duplicates (by URL)
+        const allMedia = [...dbMedia, ...cloudItems];
+        const uniqueMedia = Array.from(new Map(allMedia.map(item => [item.cloudinaryUrl, item])).values())
+            .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
 
         res.json({ 
-            images: dbImages, 
-            videos: dbVideos 
+            images: uniqueMedia.filter(m => m.type === 'images'), 
+            videos: uniqueMedia.filter(m => m.type === 'videos') 
         });
     } catch (err) {
         console.error("API Fetch Error:", err);
         res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin Auth Check
+app.post('/api/auth', (req, res) => {
+    const { user, pass } = req.body;
+    if (user === process.env.ADMIN_USER && pass === process.env.ADMIN_PASS) {
+        res.json({ success: true });
+    } else {
+        res.status(401).json({ success: false });
     }
 });
 
