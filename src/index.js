@@ -26,9 +26,25 @@ app.get('/health', (req, res) => res.send('OK'));
 app.get('/api/media', async (req, res) => {
     try {
         const cloudinary = require('cloudinary').v2;
-        cloudinary.config(true);
         
-        console.log(`[DEBUG] Using Cloudinary Account: ${cloudinary.config().cloud_name}`);
+        if (process.env.CLOUDINARY_URL) {
+            const url = process.env.CLOUDINARY_URL;
+            console.log("[DEBUG] Found CLOUDINARY_URL");
+            // Manual parse to be 100% sure
+            const matches = url.match(/cloudinary:\/\/([^:]+):([^@]+)@(.+)/);
+            if (matches) {
+                cloudinary.config({
+                    api_key: matches[1],
+                    api_secret: matches[2],
+                    cloud_name: matches[3],
+                    secure: true
+                });
+            } else {
+                cloudinary.config(true);
+            }
+        }
+        
+        console.log(`[DEBUG] Final Cloud Name: ${cloudinary.config().cloud_name}`);
 
         const fetchAllResources = async (resourceType) => {
             let resources = [];
