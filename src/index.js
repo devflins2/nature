@@ -27,6 +27,8 @@ app.get('/api/media', async (req, res) => {
     try {
         const cloudinary = require('cloudinary').v2;
         cloudinary.config(true);
+        
+        console.log(`[DEBUG] Using Cloudinary Account: ${cloudinary.config().cloud_name}`);
 
         const fetchAllResources = async (resourceType) => {
             let resources = [];
