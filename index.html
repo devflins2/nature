@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Nature Vision | Luxury Media Portfolio</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -32,10 +33,9 @@
             color: var(--text);
             font-family: 'Outfit', sans-serif;
             min-height: 100vh;
-            padding-bottom: 90px; /* Space for bottom nav */
+            padding-bottom: 90px;
         }
 
-        /* Top Header */
         header {
             position: sticky;
             top: 0;
@@ -43,7 +43,7 @@
             background: rgba(5, 7, 10, 0.8);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
-            padding: 0.8rem 1.2rem;
+            padding: 1rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -68,25 +68,27 @@
             color: var(--primary);
             font-weight: 700;
             border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
 
-        /* Floating Bottom Nav */
         .bottom-nav {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 90%;
-            max-width: 400px;
-            background: rgba(17, 24, 39, 0.85);
-            backdrop-filter: blur(20px);
+            width: 92%;
+            max-width: 450px;
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(30px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
+            border-radius: 28px;
             display: flex;
             justify-content: space-around;
             padding: 0.6rem;
             z-index: 1000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
 
         .nav-item {
@@ -95,56 +97,53 @@
             align-items: center;
             color: var(--text-dim);
             text-decoration: none;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 600;
-            padding: 0.5rem;
-            border-radius: 16px;
+            padding: 0.7rem;
+            border-radius: 20px;
             flex: 1;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
+            gap: 4px;
         }
 
         .nav-item.active {
             color: var(--primary);
             background: rgba(16, 185, 129, 0.1);
+            transform: translateY(-5px);
         }
 
         .nav-item i {
-            font-size: 1.2rem;
-            margin-bottom: 2px;
+            width: 20px;
+            height: 20px;
         }
 
-        /* Gallery Grid */
         .gallery-container {
-            padding: 1.2rem;
+            padding: 1.5rem;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 Columns for Mobile */
-            gap: 1rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.2rem;
         }
 
         @media (min-width: 768px) {
-            .grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
         }
 
         .card {
             background: var(--card-bg);
-            border-radius: 20px;
+            border-radius: 24px;
             overflow: hidden;
             border: 1px solid var(--glass-border);
-            transition: transform 0.3s ease;
+            transition: all 0.4s ease;
             opacity: 0;
-            transform: translateY(15px);
+            transform: translateY(20px);
         }
 
-        .card.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .card:active { transform: scale(0.95); }
+        .card.visible { opacity: 1; transform: translateY(0); }
+        .card:active { transform: scale(0.96); }
 
         .media-wrapper {
             aspect-ratio: 1/1;
@@ -160,11 +159,11 @@
         }
 
         .card-content {
-            padding: 0.8rem;
+            padding: 1rem;
         }
 
         .card-title {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: white;
             white-space: nowrap;
@@ -174,12 +173,14 @@
         }
 
         .card-meta {
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             color: var(--text-dim);
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
-        /* Viewer */
         #viewer {
             position: fixed;
             top: 0; left: 0;
@@ -208,48 +209,85 @@
             background: var(--primary);
         }
 
+        .close-viewer {
+            position: absolute;
+            top: 25px; right: 25px;
+            width: 48px; height: 48px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            z-index: 2100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
         #load-more-trigger {
-            padding: 2rem 0;
+            padding: 3rem 0;
             text-align: center;
             color: var(--primary);
             font-weight: 600;
             font-size: 0.9rem;
             grid-column: 1/-1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--glass);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <header>
         <div class="logo">NATURE VISION</div>
-        <div id="total-count" class="stats-badge">...</div>
+        <div id="total-count" class="stats-badge">
+            <i data-lucide="layers"></i>
+            <span id="count-text">...</span>
+        </div>
     </header>
 
-    <div id="viewer" onclick="closeViewer()">
-        <div id="viewer-media-container" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;"></div>
+    <div id="viewer">
+        <button class="close-viewer" onclick="closeViewer()"><i data-lucide="x"></i></button>
+        <div id="viewer-media-container" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;" onclick="closeViewer()"></div>
         <div class="video-timeline" id="timeline"><div class="video-progress" id="progress"></div></div>
     </div>
 
     <main class="gallery-container">
         <div id="gallery-grid" class="grid"></div>
-        <div id="load-more-trigger">✨ Exploring nature...</div>
+        <div id="load-more-trigger">
+            <div class="spinner"></div>
+            <span>Discovering Nature...</span>
+        </div>
     </main>
 
     <nav class="bottom-nav">
         <div class="nav-item active" data-tab="images" onclick="switchTab('images')">
-            <span style="font-size:1.2rem">🖼️</span>
+            <i data-lucide="image"></i>
             <span>Images</span>
         </div>
         <div class="nav-item" data-tab="videos" onclick="switchTab('videos')">
-            <span style="font-size:1.2rem">📽️</span>
+            <i data-lucide="play-circle"></i>
             <span>Videos</span>
         </div>
         <div class="nav-item" data-tab="all" onclick="switchTab('all')">
-            <span style="font-size:1.2rem">💎</span>
+            <span style="font-size:1.1rem; font-weight:bold">∞</span>
             <span>All</span>
         </div>
         <div class="nav-item" data-tab="logs" onclick="handleLogTab()">
-            <span style="font-size:1.2rem">📜</span>
+            <i data-lucide="terminal"></i>
             <span>Logs</span>
         </div>
     </nav>
@@ -262,6 +300,9 @@
         let hasMore = { images: true, videos: true, all: true };
         let authenticated = false;
         const LIMIT = 40;
+
+        // Initialize Lucide Icons
+        lucide.createIcons();
 
         function getOptimizedUrl(url, type) {
             if (!url || url === 'skipped_due_to_size') return url;
@@ -308,7 +349,10 @@
                     mediaHtml = `<img src="${optimizedUrl}" loading="lazy">`;
                 } else {
                     if (item.cloudinaryUrl === 'skipped_due_to_size') {
-                        mediaHtml = `<div style="height:100%; display:flex; align-items:center; justify-content:center; background:#161d2f; color:var(--primary); font-weight:800; font-size:0.6rem;">📽️ TG</div>`;
+                        mediaHtml = `<div style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#161d2f; color:var(--primary); font-weight:800; font-size:0.6rem; gap:5px;">
+                            <i data-lucide="cloud-off"></i>
+                            <span>TELEGRAM</span>
+                        </div>`;
                     } else {
                         mediaHtml = `<video muted loop playsinline preload="auto"><source src="${optimizedUrl}#t=0.5" type="video/mp4"></video>`;
                     }
@@ -319,11 +363,13 @@
                     <div class="card-content">
                         <div class="card-title">${item.title || 'Discovery'}</div>
                         <div class="card-meta">
+                            <i data-lucide="calendar" style="width:10px;height:10px"></i>
                             <span>${new Date(item.uploadedAt).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</span>
                         </div>
                     </div>
                 `;
                 grid.appendChild(card);
+                lucide.createIcons({attrs:{'stroke-width':3}});
                 setTimeout(() => card.classList.add('visible'), 50);
             });
         }
@@ -361,10 +407,10 @@
 
         async function updateLogs() {
             const grid = document.getElementById('gallery-grid');
-            grid.innerHTML = '<div id="log-container" style="grid-column: 1/-1; background: #000; padding: 1.5rem; border-radius: 20px; font-family: monospace; font-size: 0.8rem; max-height: 500px; overflow-y: auto; color: #10b981; border: 1px solid var(--glass-border);">Loading...</div>';
+            grid.innerHTML = '<div id="log-container" style="grid-column: 1/-1; background: #000; padding: 2rem; border-radius: 24px; font-family: monospace; font-size: 0.8rem; max-height: 500px; overflow-y: auto; color: #10b981; border: 1px solid var(--glass-border); line-height:1.5;">Loading Engine Logs...</div>';
             const res = await fetch('/api/logs');
             const logs = await res.json();
-            document.getElementById('log-container').innerHTML = logs.map(l => `<div style="margin-bottom:0.4rem;"><span style="color:#64748b;">[${l.time}]</span> ${l.message}</div>`).join('');
+            document.getElementById('log-container').innerHTML = logs.map(l => `<div style="margin-bottom:0.6rem;"><span style="color:#64748b;">[${l.time}]</span> ${l.message}</div>`).join('');
         }
 
         function openViewer(item) {
@@ -385,7 +431,12 @@
                 };
                 container.appendChild(video);
             } else if (item.cloudinaryUrl === 'skipped_due_to_size') {
-                container.innerHTML = `<div style="color:white; text-align:center;"><h2>Telegram File</h2></div>`;
+                container.innerHTML = `<div style="color:white; text-align:center;">
+                    <i data-lucide="send" style="width:50px;height:50px;margin-bottom:15px;color:var(--primary)"></i>
+                    <h2>Stored on Telegram</h2>
+                    <p style="color:var(--text-dim);font-size:0.9rem;margin-top:10px;">This file is too large for web preview.</p>
+                </div>`;
+                lucide.createIcons();
             } else {
                 const img = document.createElement('img');
                 img.id = 'viewer-content';
@@ -404,7 +455,7 @@
 
         function updateStats() {
             const total = mediaData.images.length + mediaData.videos.length;
-            document.getElementById('total-count').innerText = `${total} Items`;
+            document.getElementById('count-text').innerText = `${total} Items`;
         }
 
         window.onscroll = () => {
