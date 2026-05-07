@@ -286,6 +286,7 @@
         <div class="tabs">
             <button class="tab-btn active" data-tab="images" onclick="switchTab('images')">Images</button>
             <button class="tab-btn" data-tab="videos" onclick="switchTab('videos')">Videos</button>
+            <button class="tab-btn" data-tab="all" onclick="switchTab('all')">All Media</button>
             <button class="tab-btn" data-tab="logs" onclick="switchTab('logs')">Logs</button>
         </div>
     </section>
@@ -300,7 +301,8 @@
         let currentTab = 'images';
         let mediaData = {
             images: [],
-            videos: []
+            videos: [],
+            all: []
         };
 
         async function loadData() {
@@ -311,6 +313,9 @@
                 const data = await response.json();
                 mediaData.images = data.images || [];
                 mediaData.videos = data.videos || [];
+                mediaData.all = [...mediaData.images, ...mediaData.videos].sort((a, b) => 
+                    new Date(b.uploadedAt) - new Date(a.uploadedAt)
+                );
                 
                 renderGallery();
                 updateStats();

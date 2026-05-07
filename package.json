@@ -5,6 +5,7 @@
     "main": "src/index.js",
     "scripts": {
         "start": "node src/index.js",
+        "sync": "node src/scripts/syncCloudinary.js",
         "dev": "nodemon src/index.js",
         "clean": "node -e \"require('fs-extra').emptyDirSync('./downloads'); require('fs-extra').emptyDirSync('./metadata');\"",
         "clean:downloads": "node -e \"require('fs-extra').emptyDirSync('./downloads/images'); require('fs-extra').emptyDirSync('./downloads/videos');\"",
