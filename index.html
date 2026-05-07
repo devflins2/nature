@@ -247,6 +247,80 @@
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Login Form Styles */
+        .login-container {
+            grid-column: 1 / -1;
+            max-width: 400px;
+            margin: 4rem auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 32px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(40px);
+            text-align: center;
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .login-container h2 {
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #9ca3af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: white;
+            margin-bottom: 1.2rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .login-input:focus {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.05);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px var(--primary-glow);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-error {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 1.5rem;
+            display: none;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -381,9 +455,15 @@
             document.getElementById('gallery-grid').innerHTML = '';
             
             if (tab === 'logs') {
-                updateLogs();
+                if (!authenticated) {
+                    renderLoginForm();
+                } else {
+                    updateLogs();
+                }
                 return;
             }
+
+            document.getElementById('load-more-trigger').style.display = 'flex';
 
             if (mediaData[tab].length === 0) {
                 offset[tab] = 0;
@@ -395,14 +475,59 @@
         }
 
         async function handleLogTab() {
-            if (!authenticated) {
-                const user = prompt("Admin User:");
-                const pass = prompt("Admin Pass:");
-                const res = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user,pass})});
-                const data = await res.json();
-                if (data.success) { authenticated = true; switchTab('logs'); }
-                else alert("Access Denied");
-            } else { switchTab('logs'); }
+            if (currentTab === 'logs') return;
+            switchTab('logs');
+        }
+
+        function renderLoginForm() {
+            const grid = document.getElementById('gallery-grid');
+            document.getElementById('load-more-trigger').style.display = 'none';
+            grid.innerHTML = `
+                <div class="login-container">
+                    <i data-lucide="shield-check" style="width:48px; height:48px; color:var(--primary); margin-bottom:1.5rem;"></i>
+                    <h2>Security Required</h2>
+                    <input type="text" id="admin-user" class="login-input" placeholder="Username">
+                    <input type="password" id="admin-pass" class="login-input" placeholder="Password">
+                    <button onclick="handleLogin()" class="login-btn">Verify Identity</button>
+                    <div id="login-error" class="login-error">Access Denied: Invalid Credentials</div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        async function handleLogin() {
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+            const btn = document.querySelector('.login-btn');
+            const errorEl = document.getElementById('login-error');
+            
+            btn.innerText = "Verifying...";
+            btn.disabled = true;
+            errorEl.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user, pass })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    authenticated = true;
+                    updateLogs();
+                } else {
+                    errorEl.style.display = 'block';
+                    btn.innerText = "Verify Identity";
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                errorEl.style.display = 'block';
+                errorEl.innerText = "Server Unreachable";
+                btn.innerText = "Verify Identity";
+                btn.disabled = false;
+            }
         }
 
         async function updateLogs() {
