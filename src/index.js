@@ -22,6 +22,18 @@ app.use(express.static(path.join(__dirname, '../')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '../dashboard.html')));
 app.get('/health', (req, res) => res.send('OK'));
 
+// API to fetch media from MongoDB for the dashboard
+app.get('/api/media', async (req, res) => {
+    try {
+        const { Media } = require('./config/db');
+        const images = await Media.find({ type: 'images' }).sort({ uploadedAt: -1 });
+        const videos = await Media.find({ type: 'videos' }).sort({ uploadedAt: -1 });
+        res.json({ images, videos });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 /**
  * Main application entry point
  */

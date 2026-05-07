@@ -304,21 +304,19 @@
 
         async function loadData() {
             try {
-                // Try to fetch the metadata files
-                const imagesRes = await fetch('./metadata/images_metadata.json');
-                const videosRes = await fetch('./metadata/videos_metadata.json');
+                // Fetch media from our new MongoDB API endpoint
+                const response = await fetch('/api/media');
+                if (!response.ok) throw new Error('Failed to fetch from API');
                 
-                if (imagesRes.ok) mediaData.images = await imagesRes.json();
-                if (videosRes.ok) mediaData.videos = await videosRes.json();
+                const data = await response.json();
+                mediaData.images = data.images || [];
+                mediaData.videos = data.videos || [];
                 
                 renderGallery();
                 updateStats();
             } catch (error) {
-                console.error("Error loading metadata:", error);
-                if (window.location.protocol === 'file:') {
-                    document.getElementById('error-notice').style.display = 'block';
-                }
-                showEmptyState("Could not load metadata files. Make sure you have run the scraper and are using a local server.");
+                console.error("Error loading media:", error);
+                showEmptyState("Could not load media from database. The scraper might still be running its first cycle.");
             }
         }
 
