@@ -7,10 +7,12 @@ const path = require('path');
 const { APP_CONFIG } = require('../config/cloudinary');
 const logger = require('../utils/logger');
 
+const { sleep } = require('../utils/retry');
+
 let client = null;
 
 /**
- * Initialize the Telegram client
+ * Initialize the Telegram client (Singleton)
  */
 async function initTelegram() {
     if (client && client.connected) return client;
@@ -23,11 +25,20 @@ async function initTelegram() {
 
     const session = new StringSession(stringSession || '');
     client = new TelegramClient(session, apiId, apiHash, {
-        connectionRetries: 10,
+        connectionRetries: 15,
         useWSS: true,
+        autoReconnect: true,
     });
 
-    await client.connect();
+    try {
+        await client.connect();
+        logger.info('Telegram: Connected and Authenticated');
+    } catch (err) {
+        logger.error('Telegram: Connection failed', err);
+        client = null;
+        throw err;
+    }
+    
     return client;
 }
 
@@ -51,26 +62,30 @@ async function sendMediaToTelegram(localPath, item, type) {
                         `🏷 **Tags:** ${tagsString}\n\n` +
                         `🔗 [View on Pixabay](${item.pageURL || item.pixabayUrl})`;
 
-        logger.step('Telegram', `Initiating upload for ${item.id}...`);
+        logger.step('Telegram', `Uploading ${item.id}...`);
 
-        // Use sendFile with optimizations for large files
         await client.sendFile(chatId, {
             file: localPath,
             caption: caption,
             parseMode: 'markdown',
             supportsStreaming: true,
-            forceDocument: false,
-            workers: 1, 
         });
 
-        logger.success(`Telegram: Upload completed for ${item.id}`);
+        logger.success(`Telegram: Success ${item.id}`);
+        
+        // Anti-Flood Delay: Wait 2 seconds between uploads
+        await sleep(2000);
+
     } catch (error) {
         logger.error(`Telegram upload failed for ${item.id}: ${error.message}`);
-        // Log more details if it's a FloodWait or Timeout
-        if (error.message.includes('FLOOD')) {
-            logger.warn(`Telegram FloodWait detected. Waiting...`);
+        
+        if (error.message.includes('AUTH_KEY') || error.message.includes('406')) {
+            logger.warn('Auth Key issue detected. Resetting client...');
+            client = null;
         }
-        client = null; // Re-init on next call
+        
+        // Wait a bit more on failure
+        await sleep(5000);
     }
 }
 

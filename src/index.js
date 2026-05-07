@@ -34,10 +34,33 @@ app.get('/api/media', async (req, res) => {
     }
 });
 
-/**
- * Main application entry point
- */
-async function main() {
+// Global logs for dashboard
+let activityLogs = [];
+const MAX_LOGS = 50;
+
+function addActivityLog(message, type = 'info') {
+    const logEntry = {
+        message,
+        type,
+        time: new Date().toLocaleTimeString(),
+        timestamp: new Date()
+    };
+    activityLogs.unshift(logEntry);
+    if (activityLogs.length > MAX_LOGS) activityLogs.pop();
+}
+
+// API for logs
+app.get('/api/logs', (req, res) => res.json(activityLogs));
+
+// Integrate with logger
+const originalInfo = logger.info;
+logger.info = (msg, ...args) => { addActivityLog(msg, 'info'); originalInfo(msg, ...args); };
+const originalSuccess = logger.success;
+logger.success = (msg, ...args) => { addActivityLog(msg, 'success'); originalSuccess(msg, ...args); };
+const originalWarn = logger.warn;
+logger.warn = (msg, ...args) => { addActivityLog(msg, 'warn'); originalWarn(msg, ...args); };
+const originalError = logger.error;
+logger.error = (msg, ...args) => { addActivityLog(msg, 'error'); originalError(msg, ...args); };
     logger.section('🌿 NATURE MEDIA UPLOADER — STARTING');
     
     // 1. Setup
@@ -105,6 +128,14 @@ async function runPipeline() {
     // Process items one-by-one to save RAM on Render
     for (let i = 0; i < allNewMedia.length; i++) {
         const { item, type } = allNewMedia[i];
+        const id = String(item.id);
+        
+        // Check if already uploaded (Universal Duplicate Prevention)
+        if (uploadedIds[type].has(id)) {
+            logger.warn(`ID ${id} already processed. Skipping everything.`);
+            continue;
+        }
+
         logger.step(`[${i + 1}/${allNewMedia.length}]`, `Processing ${type.slice(0, -1)}: ${item.id}`);
 
         try {
